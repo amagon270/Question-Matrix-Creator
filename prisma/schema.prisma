@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model fact {
+  id         Int          @id @default(autoincrement())
+  name       String
+  type       String
+  factType   factType     @relation(fields: [type], references: [type])
+  ruleAction ruleAction[]
+  ruleTest   ruleTest[]
+}
+
+model factType {
+  type String @id
+  seq  Int
+  fact fact[]
+}
+
+model question {
+  id              Int               @id @default(autoincrement())
+  code            String?
+  type            String
+  min             Int?
+  max             Int?
+  questionType    questionType      @relation(fields: [type], references: [type])
+  questionLables  questionLables[]
+  questionOptions questionOptions[]
+  ruleAction      ruleAction[]
+}
+
+model questionLables {
+  questionId Int
+  label      String
+  question   question @relation(fields: [questionId], references: [id])
+
+  @@id([questionId, label])
+}
+
+model questionOptions {
+  questionId  Int
+  optionOrder Int
+  code        String?
+  value       Bytes?
+  text        String?
+  image       String?
+  question    question @relation(fields: [questionId], references: [id])
+
+  @@id([questionId, optionOrder])
+}
+
+model questionType {
+  type     String     @id
+  seq      Int
+  question question[]
+}
+
+model rule {
+  id          Int         @id @default(autoincrement())
+  triggerType String
+  action      Int
+  ruleAction  ruleAction  @relation(fields: [action], references: [id])
+  ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type])
+  ruleTests   ruleTests[]
+}
+
+model ruleAction {
+  id         Int       @id @default(autoincrement())
+  factId     Int?
+  questionId Int?
+  fact       fact?     @relation(fields: [factId], references: [id])
+  question   question? @relation(fields: [questionId], references: [id])
+  rule       rule[]
+}
+
+model ruleOperation {
+  type     String     @id
+  seq      Int
+  ruleTest ruleTest[]
+}
+
+model ruleTest {
+  id            Int           @id @default(autoincrement())
+  factId        Int
+  operation     String
+  parameter     Bytes?
+  fact          fact          @relation(fields: [factId], references: [id])
+  ruleOperation ruleOperation @relation(fields: [operation], references: [type])
+  ruleTests     ruleTests[]
+}
+
+model ruleTests {
+  ruleId   Int
+  testId   Int
+  rule     rule     @relation(fields: [ruleId], references: [id])
+  ruleTest ruleTest @relation(fields: [testId], references: [id])
+
+  @@id([ruleId, testId])
+}
+
+model ruleTrigger {
+  type String @id
+  seq  Int
+  rule rule[]
+}
