@@ -3,6 +3,9 @@ import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
 import utilStyles from '../../styles/utils.module.css'
+import { QuestionOption } from '../../lib/classes.js'
+import { Dropdown } from '../../lib/formFields.js'
+import { makeDropdownable } from '../../lib/utility'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -21,19 +24,14 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateQuestion({ questionTypes, facts }) {
-  const [sliderFields, setSliderFields] = useState(false);
+  const [questionType, setQuestionType] = useState("TextOnly");
   const [questionlabels, setquestionlabels] = useState([]);
 
-  var questionTypeStrings = [];
-  questionTypes.forEach(questionType => {
-    questionTypeStrings.push(questionType.type);
-  })
-  var factStrings = [];
-  facts.forEach(fact => {
-    factStrings.push(fact.name);
-  })
-  var currentLabel = "";
+  var optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
+  var numberOfOptions = 6;
+  var options = [];
 
+  var currentLabel = "";
   var labelFields = [];
   if (questionlabels.length > 0) {
     labelFields.push(
@@ -47,9 +45,7 @@ export default function CreateQuestion({ questionTypes, facts }) {
   }
 
   var minMax;
-  if (sliderFields === true) {
-    console.log(labelFields);
-    var temptext="hi\ntest"
+  if (questionType == "Slider") {
     minMax = (
       <>
         <label htmlFor="min">Min </label>
@@ -62,70 +58,92 @@ export default function CreateQuestion({ questionTypes, facts }) {
         <textarea rows="3" onChange={handleQuestionLabelChange}/>
         <button type="button" onClick={submitQuestionLabel}>Add Label</button><br/>
 
-        <div class={utilStyles.allowNewline}>{labelFields}</div><br/>
+        <div className={utilStyles.allowNewline}>{labelFields}</div><br/>
     </>
     )
   }
+  
+  var optionFields = [];
+  if (optionQuestionTypes.includes(questionType)) {
+    for (var i = 0; i < numberOfOptions; i++) {
+      optionFields.push(QuestionOptionField(i));
+    }
+  }
+  
   return (
     <Layout>
       <p>Questions!!!</p>
       <br/>
-      {Form(questionTypeStrings, factStrings)}
+      {Form()}
     </Layout>
   )
-  
-  function Form(questionTypes, facts) {
-    const registerUser = async event => {
-      event.preventDefault() // don't redirect the page
-      
-      const res = await fetch('/api/createQuestion', {
-        body:  JSON.stringify({
-          code: event.target.code.value,
-          type: event.target.QuestionType.value,
-          text: event.target.text.value,
-          factSubject: event.target.Facts.value,
-          options: event.target.name.value,
-          min: event.target.min.value,
-          max: event.target.max.value,
-          labels: questionlabels
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        method: 'POST'
-      })
-  
-      const result = await res.json();
-    }
-  
+
+  function Form() {
     return (
       <form onSubmit={registerUser}>
         <label htmlFor="code">Description </label>
         <input id="code" type="text" autoComplete="description" required/><br/>
   
         <label htmlFor="type">Type </label>
-        {Dropdown("QuestionType", questionTypes, handleQuestionTypeChange)}<br/>
+        {Dropdown("QuestionType", makeDropdownable(questionTypes, 'type', 'type'), handleQuestionTypeChange)}<br/>
   
         <label htmlFor="facts">Fact </label>
-        {Dropdown("Facts", facts)}<br/>
+        {Dropdown("Facts", makeDropdownable(facts, 'id', 'name'))}<br/>
   
         <label htmlFor="text">Text </label>
         <input id="text" type="text" autoComplete="display" required/><br/>
   
         {minMax}
+
+        {optionFields}
   
         <button type="submit">Create</button>
       </form>
     )
   }
 
+  function QuestionOptionField(order) {
+    return (
+      <>
+        <h4>Option {order+1}</h4>
+        <label htmlFor={order+"-description"}>Description </label>
+        <input id={order+"-description"} type="text" onChange={handleQuestionOptionChange} /><br/>
+
+        <label htmlFor={order+"-text"}>Text </label>
+        <input id={order+"-text"} type="text" onChange={handleQuestionOptionChange} /><br/>
+
+        <label htmlFor={order+"-image"}>Image </label>
+        <input id={order+"-image"} type="text" onChange={handleQuestionOptionChange} /><br/>
+      </>
+    )
+  }
+
+  async function registerUser (event) {
+    event.preventDefault() // don't redirect the page
+    console.log(options);
+    const res = await fetch('/api/createQuestion', {
+      body:  JSON.stringify({
+        code: event.target.code.value,
+        type: event.target.QuestionType.value,
+        text: event.target.text.value,
+        factSubject: event.target.Facts.value,
+        options: options,
+        min: event.target.min?.value,
+        max: event.target.max?.value,
+        labels: questionlabels
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
+    })
+
+    const result = await res.json();
+  }
+
   function handleQuestionTypeChange(event) {
     var questionType = event.target.value;
-    if (questionType == "Slider") {
-      setSliderFields(true);
-    } else {
-      setSliderFields(false);
-    }
+    setQuestionType(questionType);
 
     if (questionType == "Slider" || questionType == "TextSlider") {
       setquestionlabels([""]);
@@ -138,6 +156,29 @@ export default function CreateQuestion({ questionTypes, facts }) {
     currentLabel = event.target.value;
   }
 
+  function handleQuestionOptionChange(event) {
+    var optionNumber = event.target.id.substring(0,1);
+
+    var option = options.find(item => {
+      return item.order.toString() == event.target.id.substring(0,1);
+    });
+
+    if (option == undefined) {
+      option = new QuestionOption(optionNumber, "", "", "");
+      options.push(option);
+    }
+
+    if (event.target.id.includes("description")) {
+      option.code = event.target.value;
+    }
+    if (event.target.id.includes("text")) {
+      option.text = event.target.value;
+    }
+    if (event.target.id.includes("image")) {
+      option.image = event.target.value;
+    }
+  }
+
   function submitQuestionLabel() {
     var _labels = questionlabels;
     _labels.push(currentLabel ?? "");
@@ -145,24 +186,6 @@ export default function CreateQuestion({ questionTypes, facts }) {
       return item != "";
     });
     setquestionlabels(labels);
-  }
-  
-  function Dropdown(fieldName, Labels, onChangeFunction) {
-    const dropdownDisplay = [];
-    Labels.forEach(questionType => {
-      dropdownDisplay.push(
-        <option value={questionType} key={questionType}>{questionType}</option>
-      );
-    });
-    return (
-      <select 
-        id={fieldName} 
-        name={fieldName} 
-        onChange={onChangeFunction}
-      >
-        {dropdownDisplay}
-      </select>
-    )
   }
 }
 

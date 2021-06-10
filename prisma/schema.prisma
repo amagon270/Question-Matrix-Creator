@@ -25,6 +25,7 @@ model factType {
 model question {
   id              Int               @id @default(autoincrement())
   code            String?
+  text            String?
   type            String
   min             Int?
   max             Int?

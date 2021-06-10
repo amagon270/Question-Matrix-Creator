@@ -16,4 +16,5 @@ async function writeToDatabase(name, type) {
 
   const allFacts = await prisma.fact.findMany();
   console.log(allFacts);
+  prisma.$disconnect();
 }

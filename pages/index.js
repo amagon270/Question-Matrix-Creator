@@ -23,6 +23,9 @@ export default function Home({ allPostsData }) {
       <Link href='posts/createQuestion'>
         <a>Create a Question</a>
       </Link><br/>
+      <Link href='posts/createRule'>
+        <a>Create a Rule</a>
+      </Link><br/>
       <section className={utilStyles.headingMd}>
         <p>[Your Self Introduction]</p>
         <p>
