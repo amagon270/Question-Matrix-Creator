@@ -46,9 +46,9 @@ model questionLables {
 
 model questionOptions {
   questionId  Int
-  optionOrder Int
+  optionOrder String
   code        String?
-  value       Bytes?
+  value       String?
   text        String?
   image       String?
   question    question @relation(fields: [questionId], references: [id])
@@ -75,7 +75,7 @@ model rule {
 model ruleAction {
   id         Int       @id @default(autoincrement())
   factId     Int?
-  factAction Bytes?
+  factAction String?
   questionId Int?
   fact       fact?     @relation(fields: [factId], references: [id])
   question   question? @relation(fields: [questionId], references: [id])
@@ -92,7 +92,7 @@ model ruleTest {
   id            Int           @id @default(autoincrement())
   factId        Int
   operation     String
-  parameter     Bytes?
+  parameter     String?
   fact          fact          @relation(fields: [factId], references: [id])
   ruleOperation ruleOperation @relation(fields: [operation], references: [type])
   ruleTests     ruleTests[]

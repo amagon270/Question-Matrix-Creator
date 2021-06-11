@@ -32,7 +32,7 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateRule({ ruleTriggers, ruleOperations, questions, facts }) {
-  const [numberOfTests, setNumberOfTests] = useState(1);
+  const [numberOfTests, setNumberOfTests] = useState(0);
   var tests = [];
 
   var testFields = [];

@@ -15,35 +15,38 @@ export default function handler(req, res) {
   async function writeToDatabase(data) {
     console.log(data);
 
+    var ruleActionData = {};
+    if (data.factAction != "0") {
+      ruleActionData.factId = NaNSafeParse(data.factAction);
+    } if (data.factActionValue != "") {
+      ruleActionData.factAction = data.factActionValue;
+    } if (data.questionAction != "0") {
+      ruleActionData.questionId = NaNSafeParse(data.questionAction);
+    }
     const action = await prisma.ruleAction.create({
-      data: {
-        factId: data.factAction,
-        factAction: data.factActionValue,
-        questionId: data.questionAction
-      }
+      data: ruleActionData
     })
 
     const rule = await prisma.rule.create({
       data: {
         triggerType: data.trigger,
-        priority: data.priority,
-        action: action
+        priority: NaNSafeParse(data.priority),
+        action: action.id
       }
     })
 
     await asyncForEach(data.tests ?? [], async (test) => {
       const testId = await prisma.ruleTest.create({
         data: {
-          factId: test.fact,
-          operation: test.operator,
-          parameter: test.parameter
+          factId: NaNSafeParse(test._fact),
+          operation: test._operator,
+          parameter: test._parameter
         }
       })
-
       await prisma.ruleTests.create({
         data: {
-          ruleId: rule,
-          testId: testId
+          ruleId: rule.id,
+          testId: testId.id
         }
       })
     });
