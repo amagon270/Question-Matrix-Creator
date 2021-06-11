@@ -26,6 +26,7 @@ model question {
   id              Int               @id @default(autoincrement())
   code            String?
   text            String?
+  factSubject     String?
   type            String
   min             Int?
   max             Int?
@@ -64,6 +65,7 @@ model questionType {
 model rule {
   id          Int         @id @default(autoincrement())
   triggerType String
+  priority    Int?
   action      Int
   ruleAction  ruleAction  @relation(fields: [action], references: [id])
   ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type])
@@ -73,6 +75,7 @@ model rule {
 model ruleAction {
   id         Int       @id @default(autoincrement())
   factId     Int?
+  factAction Bytes?
   questionId Int?
   fact       fact?     @relation(fields: [factId], references: [id])
   question   question? @relation(fields: [questionId], references: [id])

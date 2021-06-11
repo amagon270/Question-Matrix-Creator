@@ -112,6 +112,9 @@ export default function CreateQuestion({ questionTypes, facts }) {
         <label htmlFor={order+"-text"}>Text </label>
         <input id={order+"-text"} type="text" onChange={handleQuestionOptionChange} /><br/>
 
+        <label htmlFor={order+"-value"}>value </label>
+        <input id={order+"-value"} type="text" onChange={handleQuestionOptionChange} /><br/>
+
         <label htmlFor={order+"-image"}>Image </label>
         <input id={order+"-image"} type="text" onChange={handleQuestionOptionChange} /><br/>
       </>
@@ -173,6 +176,9 @@ export default function CreateQuestion({ questionTypes, facts }) {
     }
     if (event.target.id.includes("text")) {
       option.text = event.target.value;
+    }
+    if (event.target.id.includes("value")) {
+      option.value = event.target.value;
     }
     if (event.target.id.includes("image")) {
       option.image = event.target.value;

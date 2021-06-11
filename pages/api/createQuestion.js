@@ -19,6 +19,7 @@ export default function handler(req, res) {
         code: data.code,
         text: data.text,
         type: data.type,
+        factSubject: data.factSubject,
         min: NaNSafeParse(data.min),
         max: NaNSafeParse(data.max)
       }
@@ -39,6 +40,7 @@ export default function handler(req, res) {
           questionId: question.id,
           optionOrder: NaNSafeParse(option._order),
           code: option._code,
+          value: option._value,
           text: option._text,
           image: option._image
         }

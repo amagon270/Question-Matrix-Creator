@@ -55,6 +55,8 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
 
         <label>Trigger Type </label>
         {Dropdown("triggers", makeDropdownable(ruleTriggers, 'type', 'type'))}<br/>
+        <label>Priority </label>
+        <input id="priority" type="text" /><br/>
         {testFields}
         <button type="button" onClick={AddTest}>Add Test</button>
         <button type="button" onClick={RemoveTest}>Remove Test</button><br/>
@@ -68,7 +70,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
   function Test(order) {
     return (
       <>
-        <h4>Test {order}</h4>
+        <h4>Test {order+1}</h4>
         <label>Fact </label>
         {Dropdown(order+'-fact', makeDropdownable(facts, 'id', 'name'), handleTestChange)}<br/>
         <label>Operator </label>
@@ -83,10 +85,12 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
     return (
       <>
         <h4>Action</h4>
-        <label>Question Action </label>
+        <label>Question</label>
         {Dropdown("questions", makeDropdownable(questions, 'id', 'code'))}<br/>
-        <label>Fact Action </label>
+        <label>Fact</label>
         {Dropdown("facts", makeDropdownable(facts, 'id', 'name'))}<br/>
+        <label>Fact Value </label>
+        <input id='factValue' type="text"/><br/>
       </>
     )
   }
@@ -130,8 +134,10 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
       body:  JSON.stringify({
         code: event.target.code.value,
         trigger: event.target.triggers.value,
+        priority: event.target.priority.value,
         questionAction: event.target.questions.value,
         factAction: event.target.facts.value,
+        factActionValue: event.target.factValue.value,
         tests: tests
       }),
       headers: {

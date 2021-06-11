@@ -15,47 +15,38 @@ export default function handler(req, res) {
   async function writeToDatabase(data) {
     console.log(data);
 
-    var factAction = await prisma.fact.findFirst({
-      where: {
-        name: data.factAction
-      }
-    })
     const action = await prisma.ruleAction.create({
       data: {
-        data
+        factId: data.factAction,
+        factAction: data.factActionValue,
+        questionId: data.questionAction
       }
     })
 
     const rule = await prisma.rule.create({
       data: {
-        triggerType: data.trigger
+        triggerType: data.trigger,
+        priority: data.priority,
+        action: action
       }
     })
 
     await asyncForEach(data.tests ?? [], async (test) => {
-      var factId = await prisma.fact.findFirst({
-        where: {name: test.fact}
-      })
-      var testId = await prisma.ruleTest.create({
+      const testId = await prisma.ruleTest.create({
         data: {
-          factId: factId,
+          factId: test.fact,
           operation: test.operator,
           parameter: test.parameter
         }
       })
-    });
 
-    await asyncForEach(data.options ?? [], async (option) => {
-      await prisma.questionOptions.create({
+      await prisma.ruleTests.create({
         data: {
-          questionId: question.id,
-          optionOrder: NaNSafeParse(option._order),
-          code: option._code,
-          text: option._text,
-          image: option._image
+          ruleId: rule,
+          testId: testId
         }
       })
-    })
+    });
 
     prisma.$disconnect();
   }
