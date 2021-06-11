@@ -46,7 +46,7 @@ model questionLables {
 
 model questionOptions {
   questionId  Int
-  optionOrder String
+  optionOrder Int
   code        String?
   value       String?
   text        String?
