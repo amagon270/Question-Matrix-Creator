@@ -1,6 +1,7 @@
 import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
+import { FactFields } from '../../lib/formFields.js'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -29,7 +30,7 @@ function Form(factTypes) {
   const registerUser = async event => {
     event.preventDefault() // don't redirect the page
     
-    const res = await fetch('/api/createFact', {
+    const res = await fetch('/api/fact', {
       body:  JSON.stringify({
         name: event.target.name.value,
         type: event.target.factType.value
@@ -44,26 +45,6 @@ function Form(factTypes) {
   }
 
   return (
-    <form onSubmit={registerUser}>
-      <label htmlFor="name">Name </label>
-      <input id="name" type="text" autoComplete="name" required /><br/>
-      {Dropdown(factTypes)}
-      <br/>
-      <button type="submit">Create</button>
-    </form>
-  )
-}
-
-function Dropdown(factTypes) {
-  const dropdownDisplay = [];
-  factTypes.forEach(factType => {
-    dropdownDisplay.push(
-      <option value={factType.type}>{factType.type}</option>
-    );
-  });
-  return (
-    <select id="factType" name="type">
-      {dropdownDisplay}
-    </select>
+    FactFields(registerUser, factTypes)
   )
 }
