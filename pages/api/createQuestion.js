@@ -3,13 +3,15 @@ import { asyncForEach, NaNSafeParse} from '../../lib/utility'
 
 export default function handler(req, res) {
   const prisma = new PrismaClient();
-  writeToDatabase(req.body)
+  if (req.method === "GET") {
+    writeToDatabase(req.body)
     .catch(e => {
       throw e
     })
     .finally(async () => {
       await prisma.$disconnect()
     });
+  }
   res.status(200).json({ text: 'Created Question' })
 
   async function writeToDatabase(data) {

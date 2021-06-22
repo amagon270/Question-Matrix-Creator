@@ -43,6 +43,6 @@ export default async function handler(req, res) {
       }
     })
     prisma.$disconnect();
-    res.status(200);
+    res.status(200).json({text: "Success"});
   }
 }
