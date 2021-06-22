@@ -1,6 +1,8 @@
 import React from "react";
+import { useState } from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
+import { Search } from '../../lib/search.js'
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -17,12 +19,14 @@ export async function getServerSideProps(context) {
 }
 
 export default function ViewFacts({ facts }) {
+  const [shownFacts, setShownFacts] = useState(facts);
   var factHtml = [];
-  for (var i = 0; i < facts.length; i++) {
+  for (var i = 0; i < shownFacts.length; i++) {
     factHtml.push(
       <>
-        <b>Name: </b>{facts[i].name}<br/>
-        <b>Type: </b>{facts[i].type}<br/>
+        <b>Name: </b>{shownFacts[i].name}<br/>
+        <b>Type: </b>{shownFacts[i].type}<br/>
+        <button id={"edit"+shownFacts[i].id} type="button">Edit</button><br/>
         <br/>
       </>
     )
@@ -30,7 +34,12 @@ export default function ViewFacts({ facts }) {
   return (
     <Layout>
       <h2>View Facts</h2>
+      {Search(facts, "name", searchCallback)}
       {factHtml}
     </Layout>
   )
+
+  function searchCallback(data) {
+    setShownFacts(data);
+  }
 }

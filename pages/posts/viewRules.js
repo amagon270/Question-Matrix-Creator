@@ -1,6 +1,8 @@
 import React from "react";
+import {useState} from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
+import { Search } from '../../lib/search.js'
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -27,12 +29,13 @@ export async function getServerSideProps(context) {
 }
 
 export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, questions, facts }) {
+  const [shownRules, setShownRules] = useState(rules);
   var questionHtml = [];
-  for (var i = 0; i < rules.length; i++) {
+  for (var i = 0; i < shownRules.length; i++) {
     var testOptions = [];
     var actionOptions = [];
 
-    var currentRuleTests = ruleTest.filter(test => test.id == ruleTests.find(test => test.ruleId == rules[i].id)?.testId);
+    var currentRuleTests = ruleTest.filter(test => test.id == ruleTests.find(test => test.ruleId == shownRules[i].id)?.testId);
     for (var j = 0; j < currentRuleTests.length; j++) {
       testOptions.push(
         <>
@@ -41,7 +44,7 @@ export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, que
       )
     }
 
-    var currentRuleActions = ruleActions.filter(action => action.id == rules[i].action);
+    var currentRuleActions = ruleActions.filter(action => action.id == shownRules[i].action);
     for (var j = 0; j < currentRuleActions.length; j++) {
       actionOptions.push(
         <>
@@ -51,9 +54,9 @@ export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, que
     }
     questionHtml.push(
       <>
-        <b>Id: </b>{rules[i].id}<br/>
-        <b>Priority: </b>{rules[i].priority}<br/>
-        <b>Trigger: </b>{rules[i].triggerType}<br/>
+        <b>Id: </b>{shownRules[i].id}<br/>
+        <b>Priority: </b>{shownRules[i].priority}<br/>
+        <b>Trigger: </b>{shownRules[i].triggerType}<br/>
         {testOptions}
         {actionOptions}
         <br/>
@@ -63,6 +66,7 @@ export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, que
   return (
     <Layout>
       <h2>View Rules</h2>
+      {Search(rules, "triggerType", setShownRules)}
       {questionHtml}
     </Layout>
   )
