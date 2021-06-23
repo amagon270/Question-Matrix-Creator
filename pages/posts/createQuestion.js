@@ -22,9 +22,7 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateQuestion({ questionTypes, facts }) {
-  const [questionType, setQuestionType] = useState("TextOnly");
-  const [questionlabels, setQuestionlabels] = useState([]);
-  const [options, setOptions] = useState([]);
+  const [questionData, setQuestionData] = useState({labels: [], type: "", options: []});
   
   return (
     <Layout>
@@ -39,29 +37,24 @@ export default function CreateQuestion({ questionTypes, facts }) {
       QuestionFields(
         facts,
         questionTypes, 
-        questionType, 
-        questionlabels, 
-        options,
-        setQuestionType,
-        setQuestionlabels,
-        setOptions,
+        questionData,
+        setQuestionData,
         registerUser)
     )
   }
 
   async function registerUser (event) {
     event.preventDefault() // don't redirect the page
-    console.log(options);
-    const res = await fetch('/api/createQuestion', {
+    const res = await fetch('/api/question', {
       body:  JSON.stringify({
         code: event.target.code.value,
         type: event.target.QuestionType.value,
         text: event.target.text.value,
         factSubject: event.target.Facts.value,
-        options: options,
+        options: questionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,
-        labels: questionlabels
+        labels: questionData.labels
       }),
       headers: {
         'Content-Type': 'application/json'
