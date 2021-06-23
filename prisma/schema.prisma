@@ -64,6 +64,7 @@ model questionType {
 
 model rule {
   id          Int         @id @default(autoincrement())
+  code        String?
   triggerType String
   priority    Int?
   action      Int
