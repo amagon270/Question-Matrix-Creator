@@ -8,14 +8,17 @@ import { useRouter } from 'next/router';
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
+
   var rules = await prisma.rule.findMany()
   var ruleActions = await prisma.ruleAction.findMany()
   var ruleTest = await prisma.ruleTest.findMany()
   var ruleTests = await prisma.ruleTests.findMany()
+  
   var questions = await prisma.question.findMany()
   var facts = await prisma.fact.findMany()
   questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
   facts.unshift({id: 0, name: "none", type: "bool"});
+
   var ruleTriggers = await prisma.ruleTrigger.findMany();
   var ruleOperations = await prisma.ruleOperation.findMany()
   .finally(async () => {
@@ -123,20 +126,25 @@ export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, rul
     const result = await res.json();
 
     refreshData();
-
     setEditRuleData(null);
   }
 
   function pushEditRuleButton(event) {
     var newRule = rules.find(rule => rule.id == event.target.id.substring(4))
     var testIds = ruleTests.filter(e => e.ruleId == newRule.id).map((e) => e.testId);
+
+    
     var tests = ruleTest.filter(test => {
       return testIds.includes(test.id)
-    }).map((e,i) => {
+    })
+    .map((e,i) => { //i needed to add an order field for the other data to work
       e.order = i;
       return e;
     })
+
+    //there should only be 1 action to 1 rule.  I probably should just edit the database
     var action = ruleActions.find(e => e.id == newRule.action)
+
     setEditRuleData({
       rule: newRule,
       action: action,
@@ -144,6 +152,5 @@ export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, rul
       tests: tests,
       submitLabel: "submit"
     })
-    console.log(editRuleData);
   }
 }

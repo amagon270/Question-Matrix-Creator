@@ -5,8 +5,9 @@ import { useState } from 'react'
 import { QuestionFields } from '../../lib/formFields.js'
 import { makeDropdownable } from '../../lib/utility'
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
+  
   var questionTypes = await prisma.questionType.findMany()
   var facts = await prisma.fact.findMany()
   .finally(async () => {

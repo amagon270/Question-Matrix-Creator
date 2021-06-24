@@ -5,10 +5,12 @@ import { FactFields } from '../../lib/formFields.js'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
+
   var factTypes = await prisma.factType.findMany()
-    .finally(async () => {
-      await prisma.$disconnect()
-    });
+  .finally(async () => {
+    await prisma.$disconnect()
+  });
+
   return {
     props: {
       factTypes
@@ -19,15 +21,19 @@ export async function getStaticProps(context) {
 export default function CreateFact({ factTypes }) {
   return (
     <Layout>
-      <p>We are here to create a fact </p>
+      <p>Create a fact </p>
       <br/>
       {Form(factTypes)}
     </Layout>
   )
-}
 
-function Form(factTypes) {
-  const registerUser = async event => {
+  function Form(factTypes) {
+    return (
+      FactFields(createFact, factTypes)
+    )
+  }
+
+  async function createFact (event) {
     event.preventDefault() // don't redirect the page
     
     const res = await fetch('/api/fact', {
@@ -43,8 +49,4 @@ function Form(factTypes) {
 
     const result = await res.json();
   }
-
-  return (
-    FactFields(registerUser, factTypes)
-  )
 }

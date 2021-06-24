@@ -11,12 +11,6 @@ export default function Home({ allPostsData }) {
       <Head>
         <title>{siteTitle}</title>
       </Head>
-      <Link href='posts/image-post'>
-        <a>ImagePage</a>
-      </Link><br/>
-      <Link href='posts/database'>
-        <a>Database testing</a>
-      </Link><br/>
       <Link href='posts/createFact'>
         <a>Create a Fact</a>
       </Link><br/>
@@ -26,6 +20,22 @@ export default function Home({ allPostsData }) {
       <Link href='posts/createRule'>
         <a>Create a Rule</a>
       </Link><br/>
+      <Link href='posts/viewFacts'>
+        <a>Create a Fact</a>
+      </Link><br/>
+      <Link href='posts/viewQuestions'>
+        <a>Create a Question</a>
+      </Link><br/>
+      <Link href='posts/viewRules'>
+        <a>Create a Rule</a>
+      </Link><br/>
+    </Layout>
+  )
+}
+
+function blogStuff() {
+  return (
+    <>
       <section className={utilStyles.headingMd}>
         <p>[Your Self Introduction]</p>
         <p>
@@ -47,7 +57,7 @@ export default function Home({ allPostsData }) {
           ))}
         </ul>
       </section>
-    </Layout>
+    </>
   )
 }
 

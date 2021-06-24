@@ -7,7 +7,7 @@ import { Dropdown } from '../../lib/formFields.js'
 import { makeDropdownable } from '../../lib/utility'
 import { RuleFields } from '../../lib/formFields.js'
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
 
   var questions = await prisma.question.findMany();
