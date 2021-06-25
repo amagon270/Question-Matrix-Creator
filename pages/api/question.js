@@ -103,10 +103,7 @@ async function updateQuestionReq(data) {
   for (const option of data.options) {
     await prisma.questionOptions.upsert({
       where: {
-        questionId_optionOrder: {
-          questionId: data.id,
-          optionOrder: NaNSafeParse(option._optionOrder)
-        },
+        id: option.id ?? -1,
       },
       create: {
         questionId: data.id,
