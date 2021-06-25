@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
-import { FactFields } from '../../lib/formFields.js'
+import { FactCreateLayout } from '../../lib/formFields.js'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -19,15 +19,22 @@ export async function getStaticProps(context) {
 export default function CreateFact({ factTypes }) {
   return (
     <Layout>
-      <p>We are here to create a fact </p>
+      <p>Create a fact </p>
       <br/>
       {Form(factTypes)}
     </Layout>
   )
-}
 
-function Form(factTypes) {
-  const registerUser = async event => {
+  function Form(factTypes) {
+    return (
+      FactCreateLayout({
+        formSubmit: createFact, 
+        factTypes: factTypes
+      })
+    )
+  }
+
+  async function createFact (event) {
     event.preventDefault() // don't redirect the page
     
     const res = await fetch('/api/fact', {
@@ -42,9 +49,6 @@ function Form(factTypes) {
     })
 
     const result = await res.json();
+    console.log(result);
   }
-
-  return (
-    FactFields(registerUser, factTypes)
-  )
 }

@@ -1,118 +1,130 @@
-import { prisma, PrismaClient } from '@prisma/client'
-import { asyncForEach, NaNSafeParse} from '../../lib/utility'
+import { PrismaClient } from '@prisma/client'
+import { NaNSafeParse} from '../../lib/utility'
 
-export default function handler(req, res) {
-  const prisma = new PrismaClient();
+export default async function handler(req, res) {
+  if (req.method === "GET") {
+    res.status(200).json({ text: 'Questions' });
+  } 
+
   if (req.method === "POST") {
-    writeToDatabase(req.body)
-    .catch(e => {
-      throw e
-    })
-    .finally(async () => {
-      await prisma.$disconnect()
-    });
+    try {
+      let response = await writeQuestionReq(req.body)
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"})
+    }
   }
+
   if (req.method === "PUT") {
-    updateDatabase(req.body)
-    .finally(async () => {
-      await prisma.$disconnect()
-    })
+    try {
+      let response = await updateQuestionReq(req.body)
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"})
+    }
   }
-  res.status(200).json({ text: 'Created Question' })
+}
 
-  async function writeToDatabase(data) {
-    const question = await prisma.question.create({
+async function writeQuestionReq(data) {
+  const prisma = new PrismaClient();
+  
+  const question = await prisma.question.create({
+    data: {
+      code: data.code,
+      text: data.text,
+      type: data.type,
+      factSubject: data.factSubject,
+      min: NaNSafeParse(data.min),
+      max: NaNSafeParse(data.max)
+    }
+  })
+
+  for (label of data.labels) {
+    await prisma.questionLables.create({
       data: {
-        code: data.code,
-        text: data.text,
-        type: data.type,
-        factSubject: data.factSubject,
-        min: NaNSafeParse(data.min),
-        max: NaNSafeParse(data.max)
+        questionId: question.id,
+        label: label
       }
     })
+  };
 
-    await asyncForEach(data.labels ?? [], async (label) => {
-      await prisma.questionLables.create({
-        data: {
-          questionId: question.id,
-          label: label
-        }
-      })
-    });
-
-    await asyncForEach(data.options ?? [], async (option) => {
-      await prisma.questionOptions.create({
-        data: {
-          questionId: question.id,
-          optionOrder: NaNSafeParse(option._order),
-          code: option._code,
-          value: option._value,
-          text: option._text,
-          image: option._image
-        }
-      })
-    })
-
-    prisma.$disconnect();
-  }
-
-  async function updateDatabase(data) {
-    console.log(data)
-    const question = await prisma.question.update({
-      where: {
-        id: data.id
-      },
+  for (option of data.options) {
+    await prisma.questionOptions.create({
       data: {
-        code: data.code,
-        text: data.text,
-        type: data.type,
-        factSubject: data.factSubject,
-        min: NaNSafeParse(data.min),
-        max: NaNSafeParse(data.max)
+        questionId: question.id,
+        optionOrder: NaNSafeParse(option._order),
+        code: option._code,
+        value: option._value,
+        text: option._text,
+        image: option._image
       }
     })
+  };
 
-    await prisma.questionLables.deleteMany({
-      where: {
-        questionId: data.id
+  prisma.$disconnect();
+  return ("Created Question " + data.code)
+}
+
+async function updateQuestionReq(data) {
+  const prisma = new PrismaClient();
+
+  const question = await prisma.question.update({
+    where: {
+      id: data.id
+    },
+    data: {
+      code: data.code,
+      text: data.text,
+      type: data.type,
+      factSubject: data.factSubject,
+      min: NaNSafeParse(data.min),
+      max: NaNSafeParse(data.max)
+    }
+  })
+
+  //there isn't anything identifying a label so i just 
+  //delete all labels for this question and re-create them all
+  await prisma.questionLables.deleteMany({
+    where: {
+      questionId: data.id
+    }
+  });
+  for (const label of data.labels) {
+    await prisma.questionLables.create({
+      data: {
+        questionId: question.id,
+        label: label
       }
     });
-    
-    await asyncForEach(data.labels ?? [], async (label) => {
-      await prisma.questionLables.create({
-        data: {
-          questionId: question.id,
-          label: label
-        }
-      });
-    });
+  };
 
-    await asyncForEach(data.options ?? [], async (option) => {
-      await prisma.questionOptions.upsert({
-        where: {
-          questionId_optionOrder: {
-            questionId: data.id,
-            optionOrder: NaNSafeParse(option._optionOrder)
-          },
-        },
-        create: {
+  for (const option of data.options) {
+    await prisma.questionOptions.upsert({
+      where: {
+        questionId_optionOrder: {
           questionId: data.id,
-          optionOrder: NaNSafeParse(option._optionOrder),
-          code: option._code,
-          value: option._value,
-          text: option._text,
-          image: option._image
+          optionOrder: NaNSafeParse(option._optionOrder)
         },
-        update: {
-          code: option._code,
-          value: option._value,
-          text: option._text,
-          image: option._image
-        }
-      })
+      },
+      create: {
+        questionId: data.id,
+        optionOrder: NaNSafeParse(option._optionOrder),
+        code: option._code,
+        value: option._value,
+        text: option._text,
+        image: option._image
+      },
+      update: {
+        code: option._code,
+        value: option._value,
+        text: option._text,
+        image: option._image
+      }
     })
+  };
 
-    prisma.$disconnect();
-  }
+  prisma.$disconnect();
+  return ("Updated Question " + data.code)
 }

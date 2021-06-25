@@ -2,8 +2,7 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
-import { QuestionFields } from '../../lib/formFields.js'
-import { makeDropdownable } from '../../lib/utility'
+import { QuestionCreateLayout } from '../../lib/formFields.js'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -23,6 +22,9 @@ export async function getStaticProps(context) {
 
 export default function CreateQuestion({ questionTypes, facts }) {
   const [questionData, setQuestionData] = useState({labels: [], type: "", options: []});
+  const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
+  const sliderQuestionTypes = ["Slider", "TextSlider"];
+  const numberOfOptions = 6;
   
   return (
     <Layout>
@@ -34,16 +36,20 @@ export default function CreateQuestion({ questionTypes, facts }) {
 
   function Form() {
     return (
-      QuestionFields(
-        facts,
-        questionTypes, 
-        questionData,
-        setQuestionData,
-        registerUser)
+      QuestionCreateLayout({
+        facts: facts,
+        questionTypes: questionTypes, 
+        questionData: questionData,
+        setQuestionData: setQuestionData,
+        formSubmit: createQuestion,
+        optionQuestionTypes: optionQuestionTypes,
+        sliderQuestionTypes: sliderQuestionTypes,
+        numberOfOptions: numberOfOptions
+      })
     )
   }
 
-  async function registerUser (event) {
+  async function createQuestion (event) {
     event.preventDefault() // don't redirect the page
     const res = await fetch('/api/question', {
       body:  JSON.stringify({

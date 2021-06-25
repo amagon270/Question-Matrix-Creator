@@ -3,7 +3,8 @@ import { useState } from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
-import { FactFields } from '../../lib/formFields.js'
+import { FactCreateLayout as FactCreateLayout } from '../../lib/formFields.js'
+import { useRouter } from "next/router";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -24,21 +25,22 @@ export async function getServerSideProps(context) {
 export default function ViewFacts({ facts, factTypes }) {
   const [shownFacts, setShownFacts] = useState(facts);
   const [editFact, setEditFact] = useState(null);
+
+  const router = useRouter();
+  const refreshData = () => {router.reload()}
+
   var factHtml = [];
-  if (editFact == null) {
-    factHtml.push(Search(facts, "name", searchCallback));
-    for (var i = 0; i < shownFacts.length; i++) {
-      factHtml.push(
-        <div key={i}>
-          <b>Name: </b>{shownFacts[i].name}<br/>
-          <b>Type: </b>{shownFacts[i].type}<br/>
-          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button><br/>
-          <br/>
-        </div>
-      )
-    }
+  if (editFact != null) {
+    factHtml.push(
+      FactCreateLayout({
+        formSubmit: updateFact,
+        factTypes: factTypes,
+        existingFact: editFact,
+        submitButtonLabel: "save"
+      })
+    )
   } else {
-    factHtml.push(FactFields(editFactCallback, factTypes, editFact, "save"))
+    factHtml.push(...factViewLayout())
   }
   return (
     <Layout>
@@ -47,11 +49,27 @@ export default function ViewFacts({ facts, factTypes }) {
     </Layout>
   )
 
-  function searchCallback(data) {
-    setShownFacts(data);
+  function factViewLayout() {
+    var layout = [];
+
+    //searchBar
+    layout.push(Search(facts, "name", setShownFacts));
+
+    //facts
+    for (var i = 0; i < shownFacts.length; i++) {
+      layout.push(
+        <div key={i}>
+          <b>Name: </b>{shownFacts[i].name}<br/>
+          <b>Type: </b>{shownFacts[i].type}<br/>
+          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button><br/>
+          <br/>
+        </div>
+      )
+    }
+    return layout;
   }
 
-  async function editFactCallback(event) {
+  async function updateFact(event) {
     event.preventDefault()
   
     const res = await fetch('/api/fact', {
@@ -67,9 +85,9 @@ export default function ViewFacts({ facts, factTypes }) {
     })
 
     const result = await res.json();
-    editFact.name = event.target.name.value;
-    editFact.type = event.target.factType.value
+    
     setEditFact(null);
+    refreshData()
   }
 
   function pushEditFactButton(event) {

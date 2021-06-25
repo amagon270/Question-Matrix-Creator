@@ -12,37 +12,54 @@ const cors = initMiddleware(
 
 export default async function handler(req, res) {
   await cors(req, res);
-  const prisma = new PrismaClient();
 
   if (req.method === "GET") {
     res.status(200).json({ text: 'Facts' });
-  } else if (req.method === "POST") {
-    writeFact(req.body.name, req.body.type);
-  } else if (req.method === "PUT") {
-    updateFact(req.body.id, req.body.name, req.body.type);
+  } 
+  
+  if (req.method === "POST") {
+    try {
+      let response = await writeFactReq(req.body);
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"})
+    }
+  } 
+  
+  if (req.method === "PUT") {
+    try {
+      let response = await updateFactReq(req.body);
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"});
+    }
   }
+}
 
-  async function writeFact(name, type) {
-    await prisma.fact.create({
-      data: {
-        name: name,
-        type: type
-      }
-    })
+async function writeFactReq(data) {
+  const prisma = new PrismaClient();
+  await prisma.fact.create({
+    data: {
+      name: data.name,
+      type: data.type
+    }
+  })
+  prisma.$disconnect();
+  return ("Created Fact " + data.name);
+}
 
-    prisma.$disconnect();
-    res.status(200);
-  }
 
-  async function updateFact(id, name, type) {
-    await prisma.fact.update({
-      where: { id: id },
-      data: {
-        name: name,
-        type: type
-      }
-    })
-    prisma.$disconnect();
-    res.status(200).json({text: "Success"});
-  }
+async function updateFactReq(data) {
+  const prisma = new PrismaClient();
+  await prisma.fact.update({
+    where: { id: data.id },
+    data: {
+      name: data.name,
+      type: data.type
+    }
+  })
+  prisma.$disconnect();
+  return("Updated Fact " + data.name);
 }
