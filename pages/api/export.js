@@ -20,9 +20,7 @@ export default async function handler(req, res) {
     const questionLabels = await prisma.questionLables.findMany();
     const facts = await prisma.fact.findMany();
     const rules = await prisma.rule.findMany();
-    const ruleTest = await prisma.ruleTest.findMany();
     const ruleTests = await prisma.ruleTests.findMany();
-    const ruleAction = await prisma.ruleAction.findMany();
 
     facts.forEach(fact => {
       factExport.push({
@@ -64,12 +62,7 @@ export default async function handler(req, res) {
     });
 
     rules.forEach(rule => {
-      const listOfTests = ruleTests.filter(test => test.ruleId == rule.id).map(test => test.testId);
-      const filteredtests = ruleTest.filter(test => {
-        if (listOfTests.includes(test.id)) {
-          return test;
-        }
-      });
+      const filteredtests = ruleTests.filter(test => test.ruleId == rule.id);
 
       var tests = [];
       filteredtests.forEach(test => {
@@ -80,19 +73,14 @@ export default async function handler(req, res) {
         })
       });
 
-      const filteredAction = ruleAction.filter(action => action.id == rule.action);
-      var action = {
-        questionId: filteredAction.questionId,
-        factId: filteredAction.factId,
-        factAction: filteredAction.factAction
-      };
-
       ruleExport.push({
         id: rule.id,
         priority: rule.priority,
         triggerType: rule.triggerType,
         tests: tests,
-        action: action
+        questionId: rule.questionId,
+        factId: rule.factId,
+        factAction: rule.factAction
       });
     });
 
