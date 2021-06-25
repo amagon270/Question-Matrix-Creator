@@ -68,6 +68,7 @@ async function writeQuestionReq(data) {
 }
 
 async function updateQuestionReq(data) {
+  console.log(data)
   const prisma = new PrismaClient();
 
   const question = await prisma.question.update({
@@ -101,7 +102,6 @@ async function updateQuestionReq(data) {
   };
 
   for (const option of data.options) {
-    console.log(option)
     await prisma.questionOptions.upsert({
       where: {
         id: option.id ?? -1,

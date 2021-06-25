@@ -60,7 +60,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
         trigger: event.target.triggers.value,
         priority: event.target.priority.value,
         questionAction: event.target.questions.value,
-        factAction: event.target.facts.value,
+        factAction: ruleData.chosenFact,
         factActionValue: event.target.factValue.value,
         tests: ruleData.tests
       }),

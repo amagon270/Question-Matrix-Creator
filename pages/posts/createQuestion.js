@@ -56,7 +56,7 @@ export default function CreateQuestion({ questionTypes, facts }) {
         code: event.target.code.value,
         type: event.target.QuestionType.value,
         text: event.target.text.value,
-        factSubject: event.target.Facts.value,
+        factSubject: questionData.chosenFact,
         options: questionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,

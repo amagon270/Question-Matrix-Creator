@@ -49,26 +49,6 @@ export default function ViewFacts({ facts, factTypes }) {
     </Layout>
   )
 
-  function factViewLayout() {
-    var layout = [];
-
-    //searchBar
-    layout.push(Search(facts, "name", setShownFacts));
-
-    //facts
-    for (var i = 0; i < shownFacts.length; i++) {
-      layout.push(
-        <div key={i}>
-          <b>Name: </b>{shownFacts[i].name}<br/>
-          <b>Type: </b>{shownFacts[i].type}<br/>
-          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button><br/>
-          <br/>
-        </div>
-      )
-    }
-    return layout;
-  }
-
   async function updateFact(event) {
     event.preventDefault()
   
@@ -92,5 +72,30 @@ export default function ViewFacts({ facts, factTypes }) {
 
   function pushEditFactButton(event) {
     setEditFact(facts.find(fact => fact.id == event.target.id.substring(4)))
+  }
+
+  function pushDeleteFactButton(event) {
+    console.log("Not yet Implemented")
+  }
+
+  function factViewLayout() {
+    var layout = [];
+
+    //searchBar
+    layout.push(Search(facts, "name", setShownFacts));
+
+    //facts
+    for (var i = 0; i < shownFacts.length; i++) {
+      layout.push(
+        <div key={i}>
+          <b>Name: </b>{shownFacts[i].name}<br/>
+          <b>Type: </b>{shownFacts[i].type}<br/>
+          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button>
+          <button id={"delete"+shownFacts[i].id} type="button" onClick={pushDeleteFactButton}>Delete</button><br/>
+          <br/>
+        </div>
+      )
+    }
+    return layout;
   }
 }

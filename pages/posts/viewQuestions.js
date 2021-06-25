@@ -72,7 +72,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         code: event.target.code.value,
         type: event.target.QuestionType.value,
         text: event.target.text.value,
-        factSubject: event.target.Facts.value,
+        factSubject: editQuestionData.chosenFact,
         options: editQuestionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,
@@ -102,6 +102,10 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     })
   }
 
+  function pushDeleteQuestionButton(event) {
+    console.log("Not yet Implemented")
+  }
+
   function questionViewLayout() {
     var layout = [];
     layout.push(Search(questions, "code", setShownQuestions));
@@ -112,7 +116,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         var currentQuestionOptions = 
           questionOptions.filter(option => option.questionId == shownQuestions[i].id)
           .sort((a, b) => a.optionOrder - b.optionOrder);
-          
+
         for (var j = 0; j < currentQuestionOptions.length; j++) {
           optionOptions.push(
             <div key={"QuestionOptions"+j}>
@@ -143,7 +147,8 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
           <b>Fact: </b>{facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}<br/>
           {sliderOptions}
           {optionOptions}
-          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton}>Edit</button><br/>
+          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton}>Edit</button>
+          <button id={"delete"+shownQuestions[i].id} type="button" onClick={pushDeleteQuestionButton}>Delete</button><br/>
           <br/>
         </div>
       )

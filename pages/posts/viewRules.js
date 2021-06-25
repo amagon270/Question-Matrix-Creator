@@ -96,12 +96,17 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
         e.order = i;
         return e;
       })
+
     setEditRuleData({
       rule: newRule,
       numberOfTests: tests.length,
       tests: tests,
       submitLabel: "submit"
     })
+  }
+
+  function pushDeleteRuleButton(event) {
+    console.log("Not yet Implemented")
   }
 
   function ruleViewLayout() {
@@ -131,7 +136,8 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
           <b>Question: </b>{shownRules[i].questionId}<br/>
           <b>Fact: </b>{shownRules[i].factId}<br/>
           <b>Fact Value: </b>{shownRules[i].factAction}<br/>
-          <button id={"edit"+shownRules[i].id} type="button" onClick={pushEditRuleButton}>Edit</button><br/>
+          <button id={"edit"+shownRules[i].id} type="button" onClick={pushEditRuleButton}>Edit</button>
+          <button id={"delete"+shownRules[i].id} type="button" onClick={pushDeleteRuleButton}>Delete</button><br/>
           <br/>
         </div>
       )
