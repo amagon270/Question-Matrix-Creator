@@ -101,23 +101,24 @@ async function updateQuestionReq(data) {
   };
 
   for (const option of data.options) {
+    console.log(option)
     await prisma.questionOptions.upsert({
       where: {
         id: option.id ?? -1,
       },
       create: {
         questionId: data.id,
-        optionOrder: NaNSafeParse(option._optionOrder),
-        code: option._code,
-        value: option._value,
-        text: option._text,
-        image: option._image
+        optionOrder: NaNSafeParse(option.optionOrder),
+        code: option.code,
+        value: option.value,
+        text: option.text,
+        image: option.image
       },
       update: {
-        code: option._code,
-        value: option._value,
-        text: option._text,
-        image: option._image
+        code: option.code,
+        value: option.value,
+        text: option.text,
+        image: option.image
       }
     })
   };

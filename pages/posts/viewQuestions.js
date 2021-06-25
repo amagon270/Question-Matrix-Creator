@@ -90,13 +90,14 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     refreshData();
   }
 
-  function pushEditFactButton(event) {
+  function pushEditQuestionButton(event) {
     var newQuestion = questions.find(question => question.id == event.target.id.substring(4))
+    console.log(questionOptions.filter(option => option.questionId == newQuestion.id))
     setEditQuestionData({
       question: newQuestion,
       type: newQuestion.type, 
       labels: questionLabels.filter(label => label.questionId == newQuestion.id).map(label => label.label),
-      options: questionOptions.filter(option => option.questionId == newQuestion.id),
+      options: questionOptions.filter(option => option.questionId == newQuestion.id).sort((a, b) => a.optionOrder-b.optionOrder),
       submitLabel: "submit"
     })
   }
@@ -106,10 +107,12 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     layout.push(Search(questions, "code", setShownQuestions));
 
     for (var i = 0; i < shownQuestions.length; i++) {
-      var sliderOptions = [];
       var optionOptions = [];
       if (optionQuestionTypes.includes(shownQuestions[i].type)) {
-        var currentQuestionOptions = questionOptions.filter(option => option.questionId == shownQuestions[i].id);
+        var currentQuestionOptions = 
+          questionOptions.filter(option => option.questionId == shownQuestions[i].id)
+          .sort((a, b) => a.optionOrder - b.optionOrder);
+          
         for (var j = 0; j < currentQuestionOptions.length; j++) {
           optionOptions.push(
             <div key={"QuestionOptions"+j}>
@@ -119,6 +122,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         }
       }
 
+      var sliderOptions = [];
       if (sliderQuestionTypes.includes(shownQuestions[i].type)) {
         var currentQuestionLabels = questionLabels.filter(label => label.questionId == shownQuestions[i].id);
         sliderOptions.push(<div key="min"><b>Min: </b>{shownQuestions[i].min}</div>);
@@ -139,7 +143,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
           <b>Fact: </b>{facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}<br/>
           {sliderOptions}
           {optionOptions}
-          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditFactButton}>Edit</button><br/>
+          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton}>Edit</button><br/>
           <br/>
         </div>
       )
