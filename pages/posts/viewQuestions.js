@@ -102,13 +102,33 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     })
   }
 
-  function pushDeleteQuestionButton(event) {
-    console.log("Not yet Implemented")
+  async function pushDeleteQuestionButton(event) {
+    event.preventDefault()
+    console.log(event.target)
+    const res = await fetch('/api/question', {
+      body:  JSON.stringify({
+        id: event.target.id.substring(6),
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'DELETE'
+    })
+
+    const result = await res.json();
+
+    setEditQuestionData(null);
+    refreshData();
   }
 
   function questionViewLayout() {
     var layout = [];
-    layout.push(Search(questions, "code", setShownQuestions));
+    layout.push(
+      <div key="Search">
+        <>Search: </>
+        {Search(questions, "code", setShownQuestions)}
+      </div>
+    );
 
     for (var i = 0; i < shownQuestions.length; i++) {
       var optionOptions = [];

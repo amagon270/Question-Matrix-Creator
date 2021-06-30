@@ -49,6 +49,5 @@ export default function CreateFact({ factTypes }) {
     })
 
     const result = await res.json();
-    console.log(result);
   }
 }

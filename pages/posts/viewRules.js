@@ -105,14 +105,34 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
     })
   }
 
-  function pushDeleteRuleButton(event) {
-    console.log("Not yet Implemented")
+  async function pushDeleteRuleButton(event) {
+    event.preventDefault() // don't redirect the page
+    const res = await fetch('/api/rule', {
+      body:  JSON.stringify({
+        id: event.target.id.substring(6),
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'DELETE'
+    })
+
+    const result = await res.json();
+
+    refreshData();
+    setEditRuleData(null);
   }
 
   function ruleViewLayout() {
     var layout = [];
 
-    layout.push(Search(rules, "triggerType", setShownRules));
+    layout.push(
+      <div key="Search">
+        <>Search: </>
+        {Search(rules, "triggerType", setShownRules)}
+      </div>
+    );
+    
     for (var i = 0; i < shownRules.length; i++) {
       var testOptions = [];
 
@@ -130,7 +150,7 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
           <b>Code: </b>{shownRules[i].code}<br/>
           <b>Priority: </b>{shownRules[i].priority}<br/>
           <b>Trigger: </b>{shownRules[i].triggerType}<br/>
-          <b>Tests</b>
+          <b>Tests</b><br/>
           {testOptions}
           <b>Action</b><br/>
           <b>Question: </b>{shownRules[i].questionId}<br/>

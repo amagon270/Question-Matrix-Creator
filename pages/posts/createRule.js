@@ -71,5 +71,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
     })
 
     const result = await res.json();
+
+    setRuleData({numberOfTests: 0, tests: []})
   }
 }

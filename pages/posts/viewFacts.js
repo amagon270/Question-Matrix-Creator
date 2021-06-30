@@ -74,15 +74,34 @@ export default function ViewFacts({ facts, factTypes }) {
     setEditFact(facts.find(fact => fact.id == event.target.id.substring(4)))
   }
 
-  function pushDeleteFactButton(event) {
-    console.log("Not yet Implemented")
+  async function pushDeleteFactButton(event) {
+    event.preventDefault()
+    const res = await fetch('/api/fact', {
+      body:  JSON.stringify({
+        id: event.target.id.substring(6),
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'DELETE'
+    })
+
+    const result = await res.json();
+    
+    setEditFact(null);
+    refreshData()
   }
 
   function factViewLayout() {
     var layout = [];
 
     //searchBar
-    layout.push(Search(facts, "name", setShownFacts));
+    layout.push(
+      <div key = "Search">
+        <>Search: </>
+        {Search(facts, "name", setShownFacts)}
+      </div>
+    );
 
     //facts
     for (var i = 0; i < shownFacts.length; i++) {

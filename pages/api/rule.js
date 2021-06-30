@@ -25,15 +25,26 @@ export default async function handler(req, res) {
       res.status(500).json({text: "Something went wrong"})
     }
   }
+
+  if (req.method === "DELETE") {
+    try {
+      let response = await deleteRuleReq(req.body)
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"})
+    }
+  }
 }
 
 async function writeRuleReq(data) {
+  console.log(data)
   const prisma = new PrismaClient();
 
   var action = {};
   if (data.questionAction != "")
     action.questionId = NaNSafeParse(data.questionAction);
-  if (data.factAction != "")
+  if (data.factAction != null)
     action.factId = NaNSafeParse(data.factAction);
   if (data.factActionValue != "")
     action.factAction = data.factActionValue;
@@ -110,4 +121,25 @@ async function updateRuleReq(data) {
 
   prisma.$disconnect();
   return ("Updated Rule " + rule.code);
+}
+
+async function deleteRuleReq(data) {
+  const prisma = new PrismaClient();
+
+  const ruleId = NaNSafeParse(data.id)
+
+  const rule = await prisma.rule.delete({
+    where: {
+      id: ruleId
+    }
+  })
+
+  await prisma.ruleTests.deleteMany({
+    where: {
+      ruleId: ruleId
+    }
+  })
+
+  prisma.$disconnect();
+  return ("Deleted Rule " + rule.code);
 }

@@ -1,6 +1,7 @@
 import Cors from "cors";
 import initMiddleware from "../../lib/initMiddleware";
 import { PrismaClient } from '@prisma/client'
+import { NaNSafeParse } from "../../lib/utility";
 
 const cors = initMiddleware(
   Cors({
@@ -36,6 +37,16 @@ export default async function handler(req, res) {
       res.status(500).json({text: "Something went wrong"});
     }
   }
+
+  if (req.method === "DELETE") {
+    try {
+      let response = await deleteFactReq(req.body);
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"});
+    }
+  }
 }
 
 async function writeFactReq(data) {
@@ -50,7 +61,6 @@ async function writeFactReq(data) {
   return ("Created Fact " + data.name);
 }
 
-
 async function updateFactReq(data) {
   const prisma = new PrismaClient();
   await prisma.fact.update({
@@ -62,4 +72,13 @@ async function updateFactReq(data) {
   })
   prisma.$disconnect();
   return("Updated Fact " + data.name);
+}
+
+async function deleteFactReq(data) {
+  const prisma = new PrismaClient();
+  await prisma.fact.delete({
+    where: { id: NaNSafeParse(data.id) },
+  })
+  prisma.$disconnect();
+  return("Deleted Fact " + data.name);
 }

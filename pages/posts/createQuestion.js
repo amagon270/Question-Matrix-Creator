@@ -21,7 +21,7 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateQuestion({ questionTypes, facts }) {
-  const [questionData, setQuestionData] = useState({labels: [], type: "", options: []});
+  const [questionData, setQuestionData] = useState({labels: [], type: null, options: []});
   const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
   const sliderQuestionTypes = ["Slider", "TextSlider"];
   const numberOfOptions = 6;
@@ -69,6 +69,8 @@ export default function CreateQuestion({ questionTypes, facts }) {
     })
 
     const result = await res.json();
+
+    setQuestionData({labels: [], type: "", options: []})
   }
 }
 

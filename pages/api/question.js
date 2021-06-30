@@ -25,9 +25,20 @@ export default async function handler(req, res) {
       res.status(500).json({text: "Something went wrong"})
     }
   }
+
+  if (req.method === "DELETE") {
+    try {
+      let response = await deleteQuestionReq(req.body)
+      res.status(200).json({text: response})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({text: "Something went wrong"})
+    }
+  }
 }
 
 async function writeQuestionReq(data) {
+  console.log(data)
   const prisma = new PrismaClient();
   
   const question = await prisma.question.create({
@@ -41,7 +52,7 @@ async function writeQuestionReq(data) {
     }
   })
 
-  for (label of data.labels) {
+  for (const label of data.labels) {
     await prisma.questionLables.create({
       data: {
         questionId: question.id,
@@ -50,11 +61,11 @@ async function writeQuestionReq(data) {
     })
   };
 
-  for (option of data.options) {
+  for (const option of data.options) {
     await prisma.questionOptions.create({
       data: {
         questionId: question.id,
-        optionOrder: NaNSafeParse(option._order),
+        optionOrder: NaNSafeParse(option._optionOrder),
         code: option._code,
         value: option._value,
         text: option._text,
@@ -125,4 +136,31 @@ async function updateQuestionReq(data) {
 
   prisma.$disconnect();
   return ("Updated Question " + data.code)
+}
+
+async function deleteQuestionReq(data) {
+  const prisma = new PrismaClient();
+
+  const questionId = NaNSafeParse(data.id);
+
+  await prisma.questionLables.deleteMany({
+    where: {
+      questionId: questionId
+    }
+  });
+
+  await prisma.questionOptions.deleteMany({
+    where: {
+      questionId: questionId
+    }
+  })
+
+  await prisma.question.delete({
+    where: {
+      id: questionId
+    },
+  })
+
+  prisma.$disconnect();
+  return ("Deleted Question " + data.code)
 }

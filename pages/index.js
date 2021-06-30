@@ -11,12 +11,12 @@ export default function Home({ allPostsData }) {
       <Head>
         <title>{siteTitle}</title>
       </Head>
-      <Link href='posts/image-post'>
-        <a>ImagePage</a>
-      </Link><br/>
-      <Link href='posts/database'>
-        <a>Database testing</a>
-      </Link><br/>
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+        crossorigin="anonymous"
+      />
       <Link href='posts/createFact'>
         <a>Create a Fact</a>
       </Link><br/>
@@ -26,27 +26,15 @@ export default function Home({ allPostsData }) {
       <Link href='posts/createRule'>
         <a>Create a Rule</a>
       </Link><br/>
-      <section className={utilStyles.headingMd}>
-        <p>[Your Self Introduction]</p>
-        <p>
-          (This is a sample website - you’ll be building a site like this on{' '}
-          <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
-        </p>
-      </section>
-      <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
-        <h2 className={utilStyles.headingLg}>Blog</h2>
-        <ul className={utilStyles.list}>
-          {allPostsData.map(({ id, date, title }) => (
-            <li className={utilStyles.listItem} key={id}>
-              {title}
-              <br />
-              {id}
-              <br />
-              {date}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Link href='posts/viewFacts'>
+        <a>View Facts</a>
+      </Link><br/>
+      <Link href='posts/viewQuestions'>
+        <a>View Questions</a>
+      </Link><br/>
+      <Link href='posts/viewRules'>
+        <a>View Rules</a>
+      </Link><br/>
     </Layout>
   )
 }
