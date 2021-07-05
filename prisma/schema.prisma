@@ -3,112 +3,95 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model fact {
-  id         Int          @id @default(autoincrement())
-  name       String
-  type       String
-  factType   factType     @relation(fields: [type], references: [type])
-  ruleAction ruleAction[]
-  ruleTest   ruleTest[]
-}
-
-model factType {
-  type String @id
-  seq  Int
-  fact fact[]
+  id        Int         @id @default(autoincrement())
+  name      String
+  type      String
+  facttype  facttype    @relation(fields: [type], references: [type])
+  rule      rule[]
+  ruletests ruletests[]
 }
 
 model question {
   id              Int               @id @default(autoincrement())
   code            String?
   text            String?
-  factSubject     String?
+  factsubject     String?
   type            String
   min             Int?
   max             Int?
-  questionType    questionType      @relation(fields: [type], references: [type])
-  questionLables  questionLables[]
-  questionOptions questionOptions[]
-  ruleAction      ruleAction[]
-}
-
-model questionLables {
-  questionId Int
-  label      String
-  question   question @relation(fields: [questionId], references: [id])
-
-  @@id([questionId, label])
-}
-
-model questionOptions {
-  questionId  Int
-  optionOrder Int
-  code        String?
-  value       String?
-  text        String?
-  image       String?
-  question    question @relation(fields: [questionId], references: [id])
-
-  @@id([questionId, optionOrder])
-}
-
-model questionType {
-  type     String     @id
-  seq      Int
-  question question[]
+  questiontype    questiontype      @relation(fields: [type], references: [type])
+  questionlables  questionlables[]
+  questionoptions questionoptions[]
+  rule            rule[]
 }
 
 model rule {
   id          Int         @id @default(autoincrement())
   code        String?
-  triggerType String
+  triggertype String
   priority    Int?
-  action      Int
-  ruleAction  ruleAction  @relation(fields: [action], references: [id])
-  ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type])
-  ruleTests   ruleTests[]
+  factid      Int?
+  factaction  String?
+  questionid  Int?
+  fact        fact?       @relation(fields: [factid], references: [id])
+  question    question?   @relation(fields: [questionid], references: [id])
+  ruletrigger ruletrigger @relation(fields: [triggertype], references: [type])
+  ruletests   ruletests[]
 }
 
-model ruleAction {
-  id         Int       @id @default(autoincrement())
-  factId     Int?
-  factAction String?
-  questionId Int?
-  fact       fact?     @relation(fields: [factId], references: [id])
-  question   question? @relation(fields: [questionId], references: [id])
-  rule       rule[]
+model facttype {
+  type String @id
+  seq  Int
+  fact fact[]
 }
 
-model ruleOperation {
+model questionlables {
+  id         Int      @id @default(autoincrement())
+  questionid Int
+  label      String
+  question   question @relation(fields: [questionid], references: [id])
+}
+
+model questionoptions {
+  id          Int      @id @default(autoincrement())
+  questionid  Int
+  optionorder Int
+  code        String?
+  value       String?
+  text        String?
+  image       String?
+  question    question @relation(fields: [questionid], references: [id])
+}
+
+model questiontype {
   type     String     @id
   seq      Int
-  ruleTest ruleTest[]
+  question question[]
 }
 
-model ruleTest {
+model ruleoperation {
+  type      String      @id
+  seq       Int
+  ruletests ruletests[]
+}
+
+model ruletests {
   id            Int           @id @default(autoincrement())
-  factId        Int
+  ruleid        Int
+  factid        Int
   operation     String
   parameter     String?
-  fact          fact          @relation(fields: [factId], references: [id])
-  ruleOperation ruleOperation @relation(fields: [operation], references: [type])
-  ruleTests     ruleTests[]
+  fact          fact          @relation(fields: [factid], references: [id])
+  ruleoperation ruleoperation @relation(fields: [operation], references: [type])
+  rule          rule          @relation(fields: [ruleid], references: [id])
 }
 
-model ruleTests {
-  ruleId   Int
-  testId   Int
-  rule     rule     @relation(fields: [ruleId], references: [id])
-  ruleTest ruleTest @relation(fields: [testId], references: [id])
-
-  @@id([ruleId, testId])
-}
-
-model ruleTrigger {
+model ruletrigger {
   type String @id
   seq  Int
   rule rule[]

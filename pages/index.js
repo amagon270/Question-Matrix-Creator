@@ -21,13 +21,13 @@ export default function Home({ allPostsData }) {
         <a>Create a Rule</a>
       </Link><br/>
       <Link href='posts/viewFacts'>
-        <a>Create a Fact</a>
+        <a>View Facts</a>
       </Link><br/>
       <Link href='posts/viewQuestions'>
-        <a>Create a Question</a>
+        <a>View Questions</a>
       </Link><br/>
       <Link href='posts/viewRules'>
-        <a>Create a Rule</a>
+        <a>View Rules</a>
       </Link><br/>
     </Layout>
   )
