@@ -1,14 +1,16 @@
 import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
-import { FactCreateLayout } from '../../lib/formFields.js'
+import { FactFields } from '../../lib/formFields.js'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
+
   var factTypes = await prisma.factType.findMany()
-    .finally(async () => {
-      await prisma.$disconnect()
-    });
+  .finally(async () => {
+    await prisma.$disconnect()
+  });
+
   return {
     props: {
       factTypes
@@ -27,10 +29,7 @@ export default function CreateFact({ factTypes }) {
 
   function Form(factTypes) {
     return (
-      FactCreateLayout({
-        formSubmit: createFact, 
-        factTypes: factTypes
-      })
+      FactFields(createFact, factTypes)
     )
   }
 

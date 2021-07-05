@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
-import { QuestionCreateLayout } from '../../lib/formFields.js'
+import { QuestionFields } from '../../lib/formFields.js'
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -29,33 +29,66 @@ export async function getServerSideProps(context) {
 
 export default function ViewQuestion({ questions, questionLabels, questionOptions, facts, questionTypes }) {
   const [shownQuestions, setShownQuestions] = useState(questions);
-  const [editQuestionData, setEditQuestionData] = useState(null);
-  const sliderQuestionTypes = ["Slider", "TextSlider"];
-  const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
-  const numberOfOptions = 6;
+  const [editQuestionData, setEditQuestionData] = useState({labels: [], type: "", options: []});
+  const [editQuestion, setEditQuestion] = useState(null);
+  const sliderQuestions = ["Slider", "TextSlider"];
+  const optionQuestions = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
   var questionHtml = [];
 
   const router = useRouter();
   const refreshData = () => {
     router.reload();
+    //router.replace(router.asPath);
   }
 
-  if (editQuestionData != null) {
-    questionHtml.push(
-      QuestionCreateLayout({
-        facts: facts,
-        questionTypes: questionTypes, 
-        questionData: editQuestionData,
-        setQuestionData: setEditQuestionData,
-        formSubmit: updateQuestion,
-        existingQuestion: editQuestionData.question,
-        optionQuestionTypes: optionQuestionTypes,
-        sliderQuestionTypes: sliderQuestionTypes,
-        numberOfOptions: numberOfOptions
-      })
-    )
+  if (editQuestion == null) {
+    questionHtml.push(Search(questions, "code", setShownQuestions));
+    for (var i = 0; i < shownQuestions.length; i++) {
+      var sliderOptions = [];
+      var optionOptions = [];
+      if (optionQuestions.includes(shownQuestions[i].type)) {
+        var currentQuestionOptions = questionOptions.filter(option => option.questionId == shownQuestions[i].id);
+        for (var j = 0; j < currentQuestionOptions.length; j++) {
+          optionOptions.push(
+            <div key={"QuestionOptions"+j}>
+              {currentQuestionOptions[j].code}: {currentQuestionOptions[j].text}: {currentQuestionOptions[j].value}: {currentQuestionOptions[j].image}<br/>
+            </div>
+          )
+        }
+      }
+
+      if (sliderQuestions.includes(shownQuestions[i].type)) {
+        var currentQuestionLabels = questionLabels.filter(label => label.questionId == shownQuestions[i].id);
+        for (var j = 0; j < currentQuestionLabels.length; j++) {
+          sliderOptions.push(
+            <div key={"sliderOptions"+j}>
+              {currentQuestionLabels[j].label} <br/>
+            </div>
+          )
+        }
+      }
+      questionHtml.push(
+        <div key={"Question"+i}>
+          <b>Code: </b>{shownQuestions[i].code}<br/>
+          <b>Text: </b>{shownQuestions[i].text}<br/>
+          <b>Fact: </b>{facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}<br/>
+          <b>Type: </b>{shownQuestions[i].type}<br/>
+          {sliderOptions}
+          {optionOptions}
+          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditFactButton}>Edit</button><br/>
+          <br/>
+        </div>
+      )
+    }
   } else {
-    questionHtml.push(...questionViewLayout());
+    questionHtml.push(QuestionFields(
+      facts,
+      questionTypes, 
+      editQuestionData,
+      setEditQuestionData,
+      updateQuestion,
+      editQuestion
+    ))
   }
   return (
     <Layout>
@@ -68,11 +101,11 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     event.preventDefault() // don't redirect the page
     const res = await fetch('/api/question', {
       body:  JSON.stringify({
-        id: editQuestionData.question.id,
+        id: editQuestion.id,
         code: event.target.code.value,
         type: event.target.QuestionType.value,
         text: event.target.text.value,
-        factSubject: editQuestionData.chosenFact,
+        factSubject: event.target.Facts.value,
         options: editQuestionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,
@@ -86,93 +119,20 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
 
     const result = await res.json();
 
-    setEditQuestionData(null);
     refreshData();
+
+    setEditQuestion(null);
+    setEditQuestionData({});
   }
 
-  function pushEditQuestionButton(event) {
+  function pushEditFactButton(event) {
     var newQuestion = questions.find(question => question.id == event.target.id.substring(4))
-    console.log(questionOptions.filter(option => option.questionId == newQuestion.id))
+    setEditQuestion(newQuestion)
     setEditQuestionData({
-      question: newQuestion,
       type: newQuestion.type, 
       labels: questionLabels.filter(label => label.questionId == newQuestion.id).map(label => label.label),
-      options: questionOptions.filter(option => option.questionId == newQuestion.id).sort((a, b) => a.optionOrder-b.optionOrder),
+      options: questionOptions.filter(option => option.questionId == newQuestion.id),
       submitLabel: "submit"
     })
-  }
-
-  async function pushDeleteQuestionButton(event) {
-    event.preventDefault()
-    console.log(event.target)
-    const res = await fetch('/api/question', {
-      body:  JSON.stringify({
-        id: event.target.id.substring(6),
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'DELETE'
-    })
-
-    const result = await res.json();
-
-    setEditQuestionData(null);
-    refreshData();
-  }
-
-  function questionViewLayout() {
-    var layout = [];
-    layout.push(
-      <div key="Search">
-        <>Search: </>
-        {Search(questions, "code", setShownQuestions)}
-      </div>
-    );
-
-    for (var i = 0; i < shownQuestions.length; i++) {
-      var optionOptions = [];
-      if (optionQuestionTypes.includes(shownQuestions[i].type)) {
-        var currentQuestionOptions = 
-          questionOptions.filter(option => option.questionId == shownQuestions[i].id)
-          .sort((a, b) => a.optionOrder - b.optionOrder);
-
-        for (var j = 0; j < currentQuestionOptions.length; j++) {
-          optionOptions.push(
-            <div key={"QuestionOptions"+j}>
-              {currentQuestionOptions[j].code}: {currentQuestionOptions[j].text}: {currentQuestionOptions[j].value}: {currentQuestionOptions[j].image}<br/>
-            </div>
-          )
-        }
-      }
-
-      var sliderOptions = [];
-      if (sliderQuestionTypes.includes(shownQuestions[i].type)) {
-        var currentQuestionLabels = questionLabels.filter(label => label.questionId == shownQuestions[i].id);
-        sliderOptions.push(<div key="min"><b>Min: </b>{shownQuestions[i].min}</div>);
-        sliderOptions.push(<div key="max"><b>Max: </b>{shownQuestions[i].max}</div>);
-        for (var j = 0; j < currentQuestionLabels.length; j++) {
-          sliderOptions.push(
-            <div key={"sliderOptions"+j}>
-              {currentQuestionLabels[j].label} <br/>
-            </div>
-          )
-        }
-      }
-      layout.push(
-        <div key={"Question"+i}>
-          <b>Code: </b>{shownQuestions[i].code}<br/>
-          <b>Type: </b>{shownQuestions[i].type}<br/>
-          <b>Text: </b>{shownQuestions[i].text}<br/>
-          <b>Fact: </b>{facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}<br/>
-          {sliderOptions}
-          {optionOptions}
-          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton}>Edit</button>
-          <button id={"delete"+shownQuestions[i].id} type="button" onClick={pushDeleteQuestionButton}>Delete</button><br/>
-          <br/>
-        </div>
-      )
-    }
-    return layout;
   }
 }

@@ -1,145 +1,135 @@
 import { prisma, PrismaClient } from '@prisma/client'
 import { asyncForEach, NaNSafeParse} from '../../lib/utility'
 
-export default async function handler(req, res) {
-  if (req.method === "GET") {
-    res.status(200).json({ text: 'Rules' });
-  } 
-
+export default function handler(req, res) {
+  const prisma = new PrismaClient();
   if (req.method === "POST") {
-    try {
-      let response = await writeRuleReq(req.body)
-      res.status(200).json({text: response})
-    } catch (e) {
-      console.log(e)
-      res.status(500).json({text: "Something went wrong"})
-    }
+    writeToDatabase(req.body)
+    .catch(e => {
+      throw e
+    })
+    .finally(async () => {
+      await prisma.$disconnect()
+    });
+  } else if(req.method === "PUT") {
+    updateDatabase(req.body)
+    .finally(async () => {
+      await prisma.$disconnect()
+    });
   }
+  res.status(200).json({ text: 'Created Rule' })
 
-  if (req.method === "PUT") {
-    try {
-      let response = await updateRuleReq(req.body)
-      res.status(200).json({text: response})
-    } catch (e) {
-      console.log(e)
-      res.status(500).json({text: "Something went wrong"})
+  async function writeToDatabase(data) {
+    console.log(data);
+
+    //I had trouble getting null to work with dropdowns so I just set 0 to mean null
+    var ruleActionData = {};
+    if (data.factAction != "0") {
+      ruleActionData.factId = NaNSafeParse(data.factAction);
+    } if (data.factActionValue != "") {
+      ruleActionData.factAction = data.factActionValue;
+    } if (data.questionAction != "0") {
+      ruleActionData.questionId = NaNSafeParse(data.questionAction);
     }
-  }
+    const action = await prisma.ruleAction.create({
+      data: ruleActionData
+    })
 
-  if (req.method === "DELETE") {
-    try {
-      let response = await deleteRuleReq(req.body)
-      res.status(200).json({text: response})
-    } catch (e) {
-      console.log(e)
-      res.status(500).json({text: "Something went wrong"})
-    }
-  }
-}
-
-async function writeRuleReq(data) {
-  console.log(data)
-  const prisma = new PrismaClient();
-
-  var action = {};
-  if (data.questionAction != "")
-    action.questionId = NaNSafeParse(data.questionAction);
-  if (data.factAction != null)
-    action.factId = NaNSafeParse(data.factAction);
-  if (data.factActionValue != "")
-    action.factAction = data.factActionValue;
-  
-  const rule = await prisma.rule.create({
-    data: {
-      code: data.code,
-      triggerType: data.trigger,
-      priority: NaNSafeParse(data.priority),
-      factId: action.factId,
-      factAction: action.factAction,
-      questionId: action.questionId
-    }
-  })
-
-  for (const test of data.tests) {
-    const testId = await prisma.ruleTests.create({
+    const rule = await prisma.rule.create({
       data: {
-        ruleId: rule.id,
-        factId: NaNSafeParse(test.factId),
-        operation: test.operation,
-        parameter: test.parameter
+        code: data.code,
+        triggerType: data.trigger,
+        priority: NaNSafeParse(data.priority),
+        action: action.id
       }
     })
-  };
 
-  prisma.$disconnect();
-  return ("Created Rule " + rule.code);
-}
+    await asyncForEach(data.tests ?? [], async (test) => {
+      const testId = await prisma.ruleTest.create({
+        data: {
+          factId: NaNSafeParse(test._fact),
+          operation: test._operator,
+          parameter: test._parameter
+        }
+      })
+      await prisma.ruleTests.create({
+        data: {
+          ruleId: rule.id,
+          testId: testId.id
+        }
+      })
+    });
 
-async function updateRuleReq(data) {
-  const prisma = new PrismaClient();
+    prisma.$disconnect();
+  }
 
-  var action = {};
-  if (data.questionAction != "")
-    action.questionId = NaNSafeParse(data.questionAction);
-  if (data.factAction != "")
-    action.factId = NaNSafeParse(data.factAction);
-  if (data.factActionValue != "")
-    action.factAction = data.factActionValue;
+  async function updateDatabase(data) {
+    console.log(data);
 
-  const rule = await prisma.rule.update({
-    where: {
-      id: data.id
-    },
-    data: {
-      code: data.code,
-      triggerType: data.trigger,
-      priority: NaNSafeParse(data.priority),
-      factId: action.factId,
-      factAction: action.factAction,
-      questionId: action.questionId
+    var ruleObject = await prisma.rule.findFirst({
+      where: {id: data.id}
+    })
+    var actionId = ruleObject.action
+    //I had trouble getting null to work with dropdowns so I just set 0 to mean null
+    var ruleActionData = {};
+    if (data.factAction != "0") {
+      ruleActionData.factId = NaNSafeParse(data.factAction);
+    } if (data.factActionValue != "") {
+      ruleActionData.factAction = data.factActionValue;
+    } if (data.questionAction != "0") {
+      ruleActionData.questionId = NaNSafeParse(data.questionAction);
     }
-  })
-
-  for (const test of data.tests) {
-    const testId = await prisma.ruleTests.upsert({
+    const action = await prisma.ruleAction.update({
       where: {
-        id: test.id ?? -1
+        id: actionId
       },
-      create: {
-        ruleId: rule.id,
-        factId: NaNSafeParse(test.factId),
-        operation: test.operation,
-        parameter: test.parameter
+      data: ruleActionData
+    })
+
+    const rule = await prisma.rule.update({
+      where: {
+        id: data.id
       },
-      update: {
-        factId: NaNSafeParse(test.factId),
-        operation: test.operation,
-        parameter: test.parameter
+      data: {
+        code: data.code,
+        triggerType: data.trigger,
+        priority: NaNSafeParse(data.priority),
+        action: action.id
       }
     })
-  };
 
-  prisma.$disconnect();
-  return ("Updated Rule " + rule.code);
-}
+    await asyncForEach(data.tests ?? [], async (test) => {
+      console.log(test)
+      const testId = await prisma.ruleTest.upsert({
+        where: {
+          id: test.id ?? -1
+        },
+        create: {
+          factId: NaNSafeParse(test.factId),
+          operation: test.operation,
+          parameter: test.parameter
+        },
+        update: {
+          factId: NaNSafeParse(test.factId),
+          operation: test.operation,
+          parameter: test.parameter
+        }
+      })
+      await prisma.ruleTests.upsert({
+        where: {
+          ruleId_testId: {
+            ruleId: data.id,
+            testId: testId.id
+          }
+        },
+        create: {
+          ruleId: rule.id,
+          testId: testId.id
+        },
+        update: {}
+      })
+    });
 
-async function deleteRuleReq(data) {
-  const prisma = new PrismaClient();
-
-  const ruleId = NaNSafeParse(data.id)
-
-  const rule = await prisma.rule.delete({
-    where: {
-      id: ruleId
-    }
-  })
-
-  await prisma.ruleTests.deleteMany({
-    where: {
-      ruleId: ruleId
-    }
-  })
-
-  prisma.$disconnect();
-  return ("Deleted Rule " + rule.code);
+    prisma.$disconnect();
+  }
 }

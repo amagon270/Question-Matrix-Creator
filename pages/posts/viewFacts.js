@@ -3,8 +3,7 @@ import { useState } from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
-import { FactCreateLayout as FactCreateLayout } from '../../lib/formFields.js'
-import { useRouter } from "next/router";
+import { FactFields } from '../../lib/formFields.js'
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -25,22 +24,21 @@ export async function getServerSideProps(context) {
 export default function ViewFacts({ facts, factTypes }) {
   const [shownFacts, setShownFacts] = useState(facts);
   const [editFact, setEditFact] = useState(null);
-
-  const router = useRouter();
-  const refreshData = () => {router.reload()}
-
   var factHtml = [];
-  if (editFact != null) {
-    factHtml.push(
-      FactCreateLayout({
-        formSubmit: updateFact,
-        factTypes: factTypes,
-        existingFact: editFact,
-        submitButtonLabel: "save"
-      })
-    )
+  if (editFact == null) {
+    factHtml.push(Search(facts, "name", searchCallback));
+    for (var i = 0; i < shownFacts.length; i++) {
+      factHtml.push(
+        <div key={i}>
+          <b>Name: </b>{shownFacts[i].name}<br/>
+          <b>Type: </b>{shownFacts[i].type}<br/>
+          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button><br/>
+          <br/>
+        </div>
+      )
+    }
   } else {
-    factHtml.push(...factViewLayout())
+    factHtml.push(FactFields(editFactCallback, factTypes, editFact, "save"))
   }
   return (
     <Layout>
@@ -49,7 +47,11 @@ export default function ViewFacts({ facts, factTypes }) {
     </Layout>
   )
 
-  async function updateFact(event) {
+  function searchCallback(data) {
+    setShownFacts(data);
+  }
+
+  async function editFactCallback(event) {
     event.preventDefault()
   
     const res = await fetch('/api/fact', {
@@ -65,56 +67,12 @@ export default function ViewFacts({ facts, factTypes }) {
     })
 
     const result = await res.json();
-    
+    editFact.name = event.target.name.value;
+    editFact.type = event.target.factType.value
     setEditFact(null);
-    refreshData()
   }
 
   function pushEditFactButton(event) {
     setEditFact(facts.find(fact => fact.id == event.target.id.substring(4)))
-  }
-
-  async function pushDeleteFactButton(event) {
-    event.preventDefault()
-    const res = await fetch('/api/fact', {
-      body:  JSON.stringify({
-        id: event.target.id.substring(6),
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'DELETE'
-    })
-
-    const result = await res.json();
-    
-    setEditFact(null);
-    refreshData()
-  }
-
-  function factViewLayout() {
-    var layout = [];
-
-    //searchBar
-    layout.push(
-      <div key = "Search">
-        <>Search: </>
-        {Search(facts, "name", setShownFacts)}
-      </div>
-    );
-
-    //facts
-    for (var i = 0; i < shownFacts.length; i++) {
-      layout.push(
-        <div key={i}>
-          <b>Name: </b>{shownFacts[i].name}<br/>
-          <b>Type: </b>{shownFacts[i].type}<br/>
-          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button>
-          <button id={"delete"+shownFacts[i].id} type="button" onClick={pushDeleteFactButton}>Delete</button><br/>
-          <br/>
-        </div>
-      )
-    }
-    return layout;
   }
 }

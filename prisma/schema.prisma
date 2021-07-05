@@ -11,15 +11,9 @@ model fact {
   id        Int         @id @default(autoincrement())
   name      String
   type      String
-  factType  factType    @relation(fields: [type], references: [type])
+  facttype  facttype    @relation(fields: [type], references: [type])
   rule      rule[]
-  ruleTests ruleTests[]
-}
-
-model factType {
-  type String @id
-  seq  Int
-  fact fact[]
+  ruletests ruletests[]
 }
 
 model question {
@@ -30,20 +24,40 @@ model question {
   type            String
   min             Int?
   max             Int?
-  questionType    questionType      @relation(fields: [type], references: [type])
-  questionLables  questionLables[]
-  questionOptions questionOptions[]
+  questiontype    questiontype      @relation(fields: [type], references: [type])
+  questionlables  questionlables[]
+  questionoptions questionoptions[]
   rule            rule[]
 }
 
-model questionLables {
+model rule {
+  id          Int         @id @default(autoincrement())
+  code        String?
+  triggertype String
+  priority    Int?
+  factid      Int?
+  factaction  String?
+  questionid  Int?
+  fact        fact?       @relation(fields: [factid], references: [id])
+  question    question?   @relation(fields: [questionid], references: [id])
+  ruletrigger ruletrigger @relation(fields: [triggertype], references: [type])
+  ruletests   ruletests[]
+}
+
+model facttype {
+  type String @id
+  seq  Int
+  fact fact[]
+}
+
+model questionlables {
   id         Int      @id @default(autoincrement())
   questionid Int
   label      String
   question   question @relation(fields: [questionid], references: [id])
 }
 
-model questionOptions {
+model questionoptions {
   id          Int      @id @default(autoincrement())
   questionid  Int
   optionorder Int
@@ -54,7 +68,7 @@ model questionOptions {
   question    question @relation(fields: [questionid], references: [id])
 }
 
-model questionType {
+model questiontype {
   type     String     @id
   seq      Int
   question question[]
@@ -77,10 +91,10 @@ model rule {
 model ruleOperation {
   type      String      @id
   seq       Int
-  ruleTests ruleTests[]
+  ruletests ruletests[]
 }
 
-model ruleTests {
+model ruletests {
   id            Int           @id @default(autoincrement())
   ruleid        Int
   factid        Int
@@ -91,7 +105,7 @@ model ruleTests {
   rule          rule          @relation(fields: [ruleid], references: [id])
 }
 
-model ruleTrigger {
+model ruletrigger {
   type String @id
   seq  Int
   rule rule[]

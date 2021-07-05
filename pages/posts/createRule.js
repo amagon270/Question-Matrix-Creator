@@ -2,15 +2,18 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
+import utilStyles from '../../styles/utils.module.css'
+import { Dropdown } from '../../lib/formFields.js'
+import { makeDropdownable } from '../../lib/utility'
 import { RuleFields } from '../../lib/formFields.js'
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
 
   var questions = await prisma.question.findMany();
   var facts = await prisma.fact.findMany();
-  questions.unshift({id: null, code: null, type: 'TextOnly'});
-  facts.unshift({id: null, name: null, type: "bool"});
+  questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
+  facts.unshift({id: 0, name: "none", type: "bool"});
 
   var ruleTriggers = await prisma.ruleTrigger.findMany();
   var ruleOperations = await prisma.ruleOperation.findMany()
@@ -30,6 +33,12 @@ export async function getStaticProps(context) {
 
 export default function CreateRule({ ruleTriggers, ruleOperations, questions, facts }) {
   const [ruleData, setRuleData] = useState({numberOfTests: 0, tests: []})
+  var database = {
+    ruleTriggers: ruleTriggers,
+    ruleOperations: ruleOperations,
+    questions: questions,
+    facts: facts
+  }
 
   return (
     <Layout>
@@ -40,19 +49,11 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
 
   function Form() {
     return (
-      RuleFields({
-        ruleTriggers: ruleTriggers,
-        ruleOperations: ruleOperations,
-        questions: questions,
-        facts: facts,
-        ruleData: ruleData,
-        setRuleData: setRuleData, 
-        formSubmit: createRule
-      })
+      RuleFields(database, ruleData, setRuleData, registerRule)
     )
   }
 
-  async function createRule (event) {
+  async function registerRule (event) {
     event.preventDefault() // don't redirect the page
     const res = await fetch('/api/rule', {
       body:  JSON.stringify({
@@ -60,7 +61,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
         trigger: event.target.triggers.value,
         priority: event.target.priority.value,
         questionAction: event.target.questions.value,
-        factAction: ruleData.chosenFact,
+        factAction: event.target.facts.value,
         factActionValue: event.target.factValue.value,
         tests: ruleData.tests
       }),
@@ -71,7 +72,5 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
     })
 
     const result = await res.json();
-
-    setRuleData({numberOfTests: 0, tests: []})
   }
 }
