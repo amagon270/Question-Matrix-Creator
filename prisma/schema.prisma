@@ -11,87 +11,87 @@ model fact {
   id        Int         @id @default(autoincrement())
   name      String
   type      String
-  facttype  facttype    @relation(fields: [type], references: [type])
+  factType  factType    @relation(fields: [type], references: [type])
   rule      rule[]
-  ruletests ruletests[]
+  ruleTests ruleTests[]
 }
 
-model question {
-  id              Int               @id @default(autoincrement())
-  code            String?
-  text            String?
-  factsubject     String?
-  type            String
-  min             Int?
-  max             Int?
-  questiontype    questiontype      @relation(fields: [type], references: [type])
-  questionlables  questionlables[]
-  questionoptions questionoptions[]
-  rule            rule[]
-}
-
-model rule {
-  id          Int         @id @default(autoincrement())
-  code        String?
-  triggertype String
-  priority    Int?
-  factid      Int?
-  factaction  String?
-  questionid  Int?
-  fact        fact?       @relation(fields: [factid], references: [id])
-  question    question?   @relation(fields: [questionid], references: [id])
-  ruletrigger ruletrigger @relation(fields: [triggertype], references: [type])
-  ruletests   ruletests[]
-}
-
-model facttype {
+model factType {
   type String @id
   seq  Int
   fact fact[]
 }
 
-model questionlables {
-  id         Int      @id @default(autoincrement())
-  questionid Int
-  label      String
-  question   question @relation(fields: [questionid], references: [id])
+model question {
+  id              Int               @id @default(autoincrement())
+  code            String
+  text            String?
+  factSubject     String?
+  type            String
+  min             Int?
+  max             Int?
+  questionType    questionType      @relation(fields: [type], references: [type])
+  questionLables  questionLables[]
+  questionOptions questionOptions[]
+  rule            rule[]
 }
 
-model questionoptions {
+model questionLables {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  label      String
+  question   question @relation(fields: [questionId], references: [id])
+}
+
+model questionOptions {
   id          Int      @id @default(autoincrement())
-  questionid  Int
-  optionorder Int
+  questionId  Int
+  optionOrder Int
   code        String?
   value       String?
   text        String?
   image       String?
-  question    question @relation(fields: [questionid], references: [id])
+  question    question @relation(fields: [questionId], references: [id])
 }
 
-model questiontype {
+model questionType {
   type     String     @id
   seq      Int
   question question[]
 }
 
-model ruleoperation {
+model rule {
+  id          Int         @id @default(autoincrement())
+  code        String?
+  triggerType String
+  priority    Int?
+  factId      Int?
+  factAction  String?
+  questionId  Int?
+  fact        fact?       @relation(fields: [factId], references: [id])
+  question    question?   @relation(fields: [questionId], references: [id])
+  ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type])
+  ruleTests   ruleTests[]
+}
+
+model ruleOperation {
   type      String      @id
   seq       Int
-  ruletests ruletests[]
+  ruleTests ruleTests[]
 }
 
-model ruletests {
+model ruleTests {
   id            Int           @id @default(autoincrement())
-  ruleid        Int
-  factid        Int
+  ruleId        Int
+  factId        Int
   operation     String
   parameter     String?
-  fact          fact          @relation(fields: [factid], references: [id])
-  ruleoperation ruleoperation @relation(fields: [operation], references: [type])
-  rule          rule          @relation(fields: [ruleid], references: [id])
+  fact          fact          @relation(fields: [factId], references: [id])
+  ruleOperation ruleOperation @relation(fields: [operation], references: [type])
+  rule          rule          @relation(fields: [ruleId], references: [id])
 }
 
-model ruletrigger {
+model ruleTrigger {
   type String @id
   seq  Int
   rule rule[]

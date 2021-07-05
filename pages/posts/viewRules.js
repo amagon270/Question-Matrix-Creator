@@ -8,17 +8,12 @@ import { useRouter } from 'next/router';
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-
   var rules = await prisma.rule.findMany()
-  var ruleActions = await prisma.ruleAction.findMany()
-  var ruleTest = await prisma.ruleTest.findMany()
   var ruleTests = await prisma.ruleTests.findMany()
-  
   var questions = await prisma.question.findMany()
   var facts = await prisma.fact.findMany()
   questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
   facts.unshift({id: 0, name: "none", type: "bool"});
-
   var ruleTriggers = await prisma.ruleTrigger.findMany();
   var ruleOperations = await prisma.ruleOperation.findMany()
   .finally(async () => {
@@ -28,8 +23,6 @@ export async function getServerSideProps(context) {
   return {
     props: {
       rules,
-      ruleActions,
-      ruleTest,
       ruleTests,
       ruleTriggers,
       ruleOperations,
@@ -39,67 +32,34 @@ export async function getServerSideProps(context) {
   }
 }
 
-export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, ruleTriggers, ruleOperations, questions, facts }) {
+export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperations, questions, facts }) {
   const [shownRules, setShownRules] = useState(rules);
-  const [editRuleData, setEditRuleData] = useState(null)
-  var database = {
-    ruleTriggers: ruleTriggers,
-    ruleOperations: ruleOperations,
-    questions: questions,
-    facts: facts
-  }
+  const [editRuleData, setEditRuleData] = useState(null);
 
   const router = useRouter();
   const refreshData = () => {
     router.reload();
-    //router.replace(router.asPath);
   }
 
   var ruleHtml = [];
-  if (editRuleData == null) { 
-    for (var i = 0; i < shownRules.length; i++) {
-      var testOptions = [];
-      var actionOptions = [];
-
-      var testIds = ruleTests.filter(e => e.ruleId == shownRules[i].id).map(e => e.testId)
-      var currentRuleTests = ruleTest.filter(test => testIds.includes(test.id));
-      for (var j = 0; j < currentRuleTests.length; j++) {
-        testOptions.push(
-          <div key={"test"+i+j}>
-            {facts.find(fact => fact.id == currentRuleTests[j].factId).name}: {currentRuleTests[j].operation}: {currentRuleTests[j].parameter}<br/>
-          </div>
-        )
-      }
-
-      var currentRuleActions = ruleActions.filter(action => action.id == shownRules[i].action);
-      for (var j = 0; j < currentRuleActions.length; j++) {
-        actionOptions.push(
-          <div key={"action"+i+j}>
-            {facts.find(fact => fact.id == currentRuleActions[j].factId)?.name}: {currentRuleActions[j].factAction}: {questions.find(question => question.id == currentRuleActions[j].questionId)?.code} <br/>
-          </div>
-        )
-      }
-      ruleHtml.push(
-        <div key={"rule"+i}>
-          <b>Id: </b>{shownRules[i].id}<br/>
-          <b>Priority: </b>{shownRules[i].priority}<br/>
-          <b>Trigger: </b>{shownRules[i].triggerType}<br/>
-          <b>Tests</b>
-          {testOptions}
-          <b>Action</b>
-          {actionOptions}
-          <button id={"edit"+shownRules[i].id} type="button" onClick={pushEditRuleButton}>Edit</button><br/>
-          <br/>
-        </div>
-      )
-    }
+  if (editRuleData != null) { 
+    ruleHtml.push(
+      RuleFields({
+        ruleTriggers: ruleTriggers,
+        ruleOperations: ruleOperations,
+        questions: questions,
+        facts: facts,
+        ruleData: editRuleData,
+        setRuleData: setEditRuleData, 
+        formSubmit: updateRule
+      })
+    )
   } else {
-    ruleHtml.push(RuleFields(database, editRuleData, setEditRuleData, updateRule))
+    ruleHtml.push(...ruleViewLayout());
   }
   return (
     <Layout>
       <h2>View Rules</h2>
-      {Search(rules, "triggerType", setShownRules)}
       {ruleHtml}
     </Layout>
   )
@@ -131,26 +91,77 @@ export default function ViewRules({ rules, ruleActions, ruleTest, ruleTests, rul
 
   function pushEditRuleButton(event) {
     var newRule = rules.find(rule => rule.id == event.target.id.substring(4))
-    var testIds = ruleTests.filter(e => e.ruleId == newRule.id).map((e) => e.testId);
-
-    
-    var tests = ruleTest.filter(test => {
-      return testIds.includes(test.id)
-    })
-    .map((e,i) => { //i needed to add an order field for the other data to work
-      e.order = i;
-      return e;
-    })
-
-    //there should only be 1 action to 1 rule.  I probably should just edit the database
-    var action = ruleActions.find(e => e.id == newRule.action)
+    var tests = ruleTests.filter(test => test.ruleId == newRule.id)
+      .map((e,i) => {
+        e.order = i;
+        return e;
+      })
 
     setEditRuleData({
       rule: newRule,
-      action: action,
       numberOfTests: tests.length,
       tests: tests,
       submitLabel: "submit"
     })
+  }
+
+  async function pushDeleteRuleButton(event) {
+    event.preventDefault() // don't redirect the page
+    const res = await fetch('/api/rule', {
+      body:  JSON.stringify({
+        id: event.target.id.substring(6),
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'DELETE'
+    })
+
+    const result = await res.json();
+
+    refreshData();
+    setEditRuleData(null);
+  }
+
+  function ruleViewLayout() {
+    var layout = [];
+
+    layout.push(
+      <div key="Search">
+        <>Search: </>
+        {Search(rules, "triggerType", setShownRules)}
+      </div>
+    );
+    
+    for (var i = 0; i < shownRules.length; i++) {
+      var testOptions = [];
+
+      var currentRuleTests = ruleTests.filter(test => test.ruleId == shownRules[i].id);
+      for (var j = 0; j < currentRuleTests.length; j++) {
+        testOptions.push(
+          <div key={"test"+i+j}>
+            {facts.find(fact => fact.id == currentRuleTests[j].factId).name}: {currentRuleTests[j].operation}: {currentRuleTests[j].parameter}<br/>
+          </div>
+        )
+      }
+
+      layout.push(
+        <div key={"rule"+i}>
+          <b>Code: </b>{shownRules[i].code}<br/>
+          <b>Priority: </b>{shownRules[i].priority}<br/>
+          <b>Trigger: </b>{shownRules[i].triggerType}<br/>
+          <b>Tests</b><br/>
+          {testOptions}
+          <b>Action</b><br/>
+          <b>Question: </b>{shownRules[i].questionId}<br/>
+          <b>Fact: </b>{shownRules[i].factId}<br/>
+          <b>Fact Value: </b>{shownRules[i].factAction}<br/>
+          <button id={"edit"+shownRules[i].id} type="button" onClick={pushEditRuleButton}>Edit</button>
+          <button id={"delete"+shownRules[i].id} type="button" onClick={pushDeleteRuleButton}>Delete</button><br/>
+          <br/>
+        </div>
+      )
+    }
+    return(layout);
   }
 }
