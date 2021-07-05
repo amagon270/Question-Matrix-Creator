@@ -2,32 +2,72 @@ CREATE TABLE ruleTrigger (
   type        TEXT    PRIMARY KEY NOT NULL,
   seq         INTEGER NOT NULL
 );
-INSERT INTO ruleTrigger(type, seq) VALUES ("Any", 1);
-INSERT INTO ruleTrigger(type, seq) VALUES ("All", 2);
-INSERT INTO ruleTrigger(type, seq) VALUES ("Always", 3);
 
 CREATE TABLE ruleOperation (
   type        TEXT    PRIMARY KEY NOT NULL,
   seq         INTEGER NOT NULL
 );
-INSERT INTO ruleOperation(type, seq) VALUES ("GreaterThan", 1);
-INSERT INTO ruleOperation(type, seq) VALUES ("LessThan", 2);
-INSERT INTO ruleOperation(type, seq) VALUES ("EqualTo", 3);
-INSERT INTO ruleOperation(type, seq) VALUES ("Exists", 4);
-INSERT INTO ruleOperation(type, seq) VALUES ("Contains", 5);
 
 CREATE TABLE factType (
   type        TEXT    PRIMARY KEY NOT NULL,
   seq         INTEGER NOT NULL
 );
-INSERT INTO factType(type, seq) VALUES ("int", 1);
-INSERT INTO factType(type, seq) VALUES ("bool", 2);
-INSERT INTO factType(type, seq) VALUES ("String", 3);
 
 CREATE TABLE questionType (
   type        TEXT    PRIMARY KEY NOT NULL,
   seq         INTEGER NOT NULL
 );
+
+CREATE TABLE fact (
+  id          SERIAL PRIMARY KEY NOT NULL,
+  name        TEXT    NOT NULL,
+  type        TEXT    NOT NULL REFERENCES factType(type)
+);
+
+CREATE TABLE question (
+  id          SERIAL PRIMARY KEY NOT NULL,
+  code        TEXT,
+  text        TEXT,
+  factSubject TEXT,
+  type        TEXT    NOT NULL REFERENCES questionType(type),
+  min         INTEGER,
+  max         INTEGER
+);
+
+CREATE TABLE rule (
+  id          SERIAL PRIMARY KEY NOT NULL,
+  code        TEXT,
+  triggerType TEXT    NOT NULL REFERENCES ruleTrigger(type),
+  priority    INTEGER,
+  factId      INTEGER REFERENCES fact(id),
+  factAction  TEXT,
+  questionId  INTEGER REFERENCES question(id)
+);
+
+CREATE TABLE ruleTests (
+  id          SERIAL PRIMARY KEY NOT NULL,
+  ruleId      INTEGER NOT NULL REFERENCES rule(id),
+  factId      INTEGER NOT NULL REFERENCES fact(id),
+  operation   TEXT    NOT NULL REFERENCES ruleOperation(type),
+  parameter   TEXT
+);
+
+CREATE TABLE questionLables (
+  id          SERIAL PRIMARY KEY NOT NULL,
+  questionId  INTEGER NOT NULL REFERENCES question(id),
+  label       TEXT    NOT NULL
+);
+
+CREATE TABLE questionOptions (
+  id          SERIAL PRIMARY KEY NOT NULL,
+  questionId  INTEGER NOT NULL REFERENCES question(id),
+  optionOrder INTEGER NOT NULL,
+  code        TEXT,
+  value       TEXT,
+  text        TEXT,
+  image       TEXT
+);
+
 INSERT INTO questionType(type, seq) VALUES ("TextOnly", 1);
 INSERT INTO questionType(type, seq) VALUES ("MultipleChoice", 2);
 INSERT INTO questionType(type, seq) VALUES ("Slider", 3);
@@ -39,52 +79,16 @@ INSERT INTO questionType(type, seq) VALUES ("MultipleSelect", 8);
 INSERT INTO questionType(type, seq) VALUES ("TextInput", 9);
 INSERT INTO questionType(type, seq) VALUES ("Circle", 10);
 
-CREATE TABLE fact (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  name        TEXT    NOT NULL,
-  type        TEXT    NOT NULL REFERENCES factType(type)
-);
+INSERT INTO factType(type, seq) VALUES ("int", 1);
+INSERT INTO factType(type, seq) VALUES ("bool", 2);
+INSERT INTO factType(type, seq) VALUES ("String", 3);
 
-CREATE TABLE question (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  code        TEXT,
-  text        TEXT,
-  factSubject TEXT,
-  type        TEXT    NOT NULL REFERENCES questionType(type),
-  min         INTEGER,
-  max         INTEGER
-);
+INSERT INTO ruleOperation(type, seq) VALUES ("GreaterThan", 1);
+INSERT INTO ruleOperation(type, seq) VALUES ("LessThan", 2);
+INSERT INTO ruleOperation(type, seq) VALUES ("EqualTo", 3);
+INSERT INTO ruleOperation(type, seq) VALUES ("Exists", 4);
+INSERT INTO ruleOperation(type, seq) VALUES ("Contains", 5);
 
-CREATE TABLE rule (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  code        TEXT,
-  triggerType TEXT    NOT NULL REFERENCES ruleTrigger(type),
-  priority    INTEGER,
-  factId      INTEGER REFERENCES fact(id),
-  factAction  TEXT,
-  questionId  INTEGER REFERENCES question(id)
-);
-
-CREATE TABLE ruleTests (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  ruleId      INTEGER NOT NULL REFERENCES rule(id),
-  factId      INTEGER NOT NULL REFERENCES fact(id),
-  operation   TEXT    NOT NULL REFERENCES ruleOperation(type),
-  parameter   TEXT
-);
-
-CREATE TABLE questionLables (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  questionId  INTEGER NOT NULL REFERENCES question(id),
-  label       TEXT    NOT NULL,
-);
-
-CREATE TABLE questionOptions (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  questionId  INTEGER NOT NULL REFERENCES question(id),
-  optionOrder INTEGER NOT NULL,
-  code        TEXT,
-  value       TEXT,
-  text        TEXT,
-  image       TEXT,
-);
+INSERT INTO ruleTrigger(type, seq) VALUES ("Any", 1);
+INSERT INTO ruleTrigger(type, seq) VALUES ("All", 2);
+INSERT INTO ruleTrigger(type, seq) VALUES ("Always", 3);
