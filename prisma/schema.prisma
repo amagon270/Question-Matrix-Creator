@@ -74,7 +74,21 @@ model questiontype {
   question question[]
 }
 
-model ruleoperation {
+model rule {
+  id          Int         @id @default(autoincrement())
+  code        String?
+  triggertype String
+  priority    Int?
+  factid      Int?
+  factaction  String?
+  questionid  Int?
+  fact        fact?       @relation(fields: [factid], references: [id])
+  question    question?   @relation(fields: [questionid], references: [id])
+  ruleTrigger ruleTrigger @relation(fields: [triggertype], references: [type])
+  ruleTests   ruleTests[]
+}
+
+model ruleOperation {
   type      String      @id
   seq       Int
   ruletests ruletests[]
@@ -87,7 +101,7 @@ model ruletests {
   operation     String
   parameter     String?
   fact          fact          @relation(fields: [factid], references: [id])
-  ruleoperation ruleoperation @relation(fields: [operation], references: [type])
+  ruleOperation ruleOperation @relation(fields: [operation], references: [type])
   rule          rule          @relation(fields: [ruleid], references: [id])
 }
 
