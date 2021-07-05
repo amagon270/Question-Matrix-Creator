@@ -30,6 +30,7 @@ export async function getStaticProps(context) {
 
 export default function CreateRule({ ruleTriggers, ruleOperations, questions, facts }) {
   const [ruleData, setRuleData] = useState({numberOfTests: 0, tests: []})
+  const refreshData = () => {router.reload()}
 
   return (
     <Layout>
@@ -73,5 +74,6 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
     const result = await res.json();
 
     setRuleData({numberOfTests: 0, tests: []})
+    refreshData();
   }
 }

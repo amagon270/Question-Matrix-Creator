@@ -30,12 +30,12 @@ CREATE TABLE questionType (
 );
 INSERT INTO questionType(type, seq) VALUES ("TextOnly", 1);
 INSERT INTO questionType(type, seq) VALUES ("MultipleChoice", 2);
-INSERT INTO questionType(type, seq) VALUES ("Slider", 3);
-INSERT INTO questionType(type, seq) VALUES ("TextSlider", 4);
-INSERT INTO questionType(type, seq) VALUES ("Polygon", 5);
-INSERT INTO questionType(type, seq) VALUES ("MultiPolygon", 6);
-INSERT INTO questionType(type, seq) VALUES ("ColourPicker", 7);
-INSERT INTO questionType(type, seq) VALUES ("MultipleSelect", 8);
+INSERT INTO questionType(type, seq) VALUES ("MultipleSelect", 3);
+INSERT INTO questionType(type, seq) VALUES ("Slider", 4);
+INSERT INTO questionType(type, seq) VALUES ("TextSlider", 5);
+INSERT INTO questionType(type, seq) VALUES ("Polygon", 6);
+INSERT INTO questionType(type, seq) VALUES ("MultiPolygon", 7);
+INSERT INTO questionType(type, seq) VALUES ("ColourPicker", 8);
 INSERT INTO questionType(type, seq) VALUES ("TextInput", 9);
 INSERT INTO questionType(type, seq) VALUES ("Circle", 10);
 

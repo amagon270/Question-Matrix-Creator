@@ -17,6 +17,8 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateFact({ factTypes }) {
+  const refreshData = () => {router.reload()}
+
   return (
     <Layout>
       <p>Create a fact </p>
@@ -49,5 +51,6 @@ export default function CreateFact({ factTypes }) {
     })
 
     const result = await res.json();
+    refreshData();
   }
 }

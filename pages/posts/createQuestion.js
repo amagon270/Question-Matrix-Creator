@@ -25,7 +25,8 @@ export default function CreateQuestion({ questionTypes, facts }) {
   const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
   const sliderQuestionTypes = ["Slider", "TextSlider"];
   const numberOfOptions = 6;
-  
+  const refreshData = () => {router.reload()}
+
   return (
     <Layout>
       <p>Questions!!!</p>
@@ -71,6 +72,7 @@ export default function CreateQuestion({ questionTypes, facts }) {
     const result = await res.json();
 
     setQuestionData({labels: [], type: "", options: []})
+    refreshData();
   }
 }
 
