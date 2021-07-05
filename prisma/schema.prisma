@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,9 +24,9 @@ model factType {
 
 model question {
   id              Int               @id @default(autoincrement())
-  code            String
+  code            String?
   text            String?
-  factSubject     String?
+  factsubject     String?
   type            String
   min             Int?
   max             Int?
@@ -38,20 +38,20 @@ model question {
 
 model questionLables {
   id         Int      @id @default(autoincrement())
-  questionId Int
+  questionid Int
   label      String
-  question   question @relation(fields: [questionId], references: [id])
+  question   question @relation(fields: [questionid], references: [id])
 }
 
 model questionOptions {
   id          Int      @id @default(autoincrement())
-  questionId  Int
-  optionOrder Int
+  questionid  Int
+  optionorder Int
   code        String?
   value       String?
   text        String?
   image       String?
-  question    question @relation(fields: [questionId], references: [id])
+  question    question @relation(fields: [questionid], references: [id])
 }
 
 model questionType {
@@ -63,14 +63,14 @@ model questionType {
 model rule {
   id          Int         @id @default(autoincrement())
   code        String?
-  triggerType String
+  triggertype String
   priority    Int?
-  factId      Int?
-  factAction  String?
-  questionId  Int?
-  fact        fact?       @relation(fields: [factId], references: [id])
-  question    question?   @relation(fields: [questionId], references: [id])
-  ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type])
+  factid      Int?
+  factaction  String?
+  questionid  Int?
+  fact        fact?       @relation(fields: [factid], references: [id])
+  question    question?   @relation(fields: [questionid], references: [id])
+  ruleTrigger ruleTrigger @relation(fields: [triggertype], references: [type])
   ruleTests   ruleTests[]
 }
 
@@ -82,13 +82,13 @@ model ruleOperation {
 
 model ruleTests {
   id            Int           @id @default(autoincrement())
-  ruleId        Int
-  factId        Int
+  ruleid        Int
+  factid        Int
   operation     String
   parameter     String?
-  fact          fact          @relation(fields: [factId], references: [id])
+  fact          fact          @relation(fields: [factid], references: [id])
   ruleOperation ruleOperation @relation(fields: [operation], references: [type])
-  rule          rule          @relation(fields: [ruleId], references: [id])
+  rule          rule          @relation(fields: [ruleid], references: [id])
 }
 
 model ruleTrigger {
