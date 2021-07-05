@@ -37,9 +37,7 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
   const [editRuleData, setEditRuleData] = useState(null);
 
   const router = useRouter();
-  const refreshData = () => {
-    router.reload();
-  }
+  const refreshData = () => {router.reload()}
 
   var ruleHtml = [];
   if (editRuleData != null) { 

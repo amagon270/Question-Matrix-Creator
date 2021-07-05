@@ -36,9 +36,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
   var questionHtml = [];
 
   const router = useRouter();
-  const refreshData = () => {
-    router.reload();
-  }
+  const refreshData = () => {router.reload()}
 
   if (editQuestionData != null) {
     questionHtml.push(

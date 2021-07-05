@@ -2,6 +2,7 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { FactCreateLayout } from '../../lib/formFields.js'
+import { useRouter } from 'next/router';
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -17,6 +18,7 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateFact({ factTypes }) {
+  const router = useRouter();
   const refreshData = () => {router.reload()}
 
   return (

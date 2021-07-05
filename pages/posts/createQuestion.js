@@ -3,6 +3,7 @@ import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
 import { QuestionCreateLayout } from '../../lib/formFields.js'
+import { useRouter } from 'next/router';
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -25,6 +26,7 @@ export default function CreateQuestion({ questionTypes, facts }) {
   const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
   const sliderQuestionTypes = ["Slider", "TextSlider"];
   const numberOfOptions = 6;
+  const router = useRouter();
   const refreshData = () => {router.reload()}
 
   return (

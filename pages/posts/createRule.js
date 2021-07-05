@@ -3,6 +3,7 @@ import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
 import { RuleFields } from '../../lib/formFields.js'
+import { useRouter } from 'next/router';
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
@@ -30,6 +31,7 @@ export async function getStaticProps(context) {
 
 export default function CreateRule({ ruleTriggers, ruleOperations, questions, facts }) {
   const [ruleData, setRuleData] = useState({numberOfTests: 0, tests: []})
+  const router = useRouter();
   const refreshData = () => {router.reload()}
 
   return (
