@@ -149,7 +149,7 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
           <b>Priority: </b>{shownRules[i].priority}<br/>
           <b>Trigger: </b>{shownRules[i].triggerType}<br/>
           <b>Tests</b><br/>
-          {testOptions}
+          {/* {testOptions} */}
           <b>Action</b><br/>
           <b>Question: </b>{shownRules[i].questionId}<br/>
           <b>Fact: </b>{shownRules[i].factId}<br/>

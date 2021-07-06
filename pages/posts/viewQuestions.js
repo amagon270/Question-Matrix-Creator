@@ -90,7 +90,6 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
 
   function pushEditQuestionButton(event) {
     var newQuestion = questions.find(question => question.id == event.target.id.substring(4))
-    console.log(questionOptions.filter(option => option.questionId == newQuestion.id))
     setEditQuestionData({
       question: newQuestion,
       type: newQuestion.type, 
@@ -163,8 +162,8 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
           <b>Type: </b>{shownQuestions[i].type}<br/>
           <b>Text: </b>{shownQuestions[i].text}<br/>
           <b>Fact: </b>{facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}<br/>
-          {sliderOptions}
-          {optionOptions}
+          {/* {sliderOptions}
+          {optionOptions} */}
           <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton}>Edit</button>
           <button id={"delete"+shownQuestions[i].id} type="button" onClick={pushDeleteQuestionButton}>Delete</button><br/>
           <br/>
