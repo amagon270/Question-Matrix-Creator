@@ -30,6 +30,7 @@ export default function CreateQuestion({ questionTypes, facts }) {
   const refreshData = () => {router.reload()}
 
   console.log(questionData)
+  console.log(facts)
 
   return (
     <Layout>
