@@ -53,6 +53,6 @@ export default function CreateFact({ factTypes }) {
     })
 
     const result = await res.json();
-    //refreshData();
+    refreshData();
   }
 }
