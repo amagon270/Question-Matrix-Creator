@@ -22,12 +22,14 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateQuestion({ questionTypes, facts }) {
-  const [questionData, setQuestionData] = useState({labels: [], type: null, options: []});
+  const [questionData, setQuestionData] = useState({labels: [], questionType: null, options: []});
   const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
   const sliderQuestionTypes = ["Slider", "TextSlider"];
   const numberOfOptions = 6;
   const router = useRouter();
   const refreshData = () => {router.reload()}
+
+  console.log(questionData)
 
   return (
     <Layout>
@@ -73,7 +75,7 @@ export default function CreateQuestion({ questionTypes, facts }) {
 
     const result = await res.json();
 
-    setQuestionData({labels: [], type: "", options: []})
+    setQuestionData({labels: [], questionType: "", options: []})
     refreshData();
   }
 }

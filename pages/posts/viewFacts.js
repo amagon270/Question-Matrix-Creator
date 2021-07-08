@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
 import { FactCreateLayout as FactCreateLayout } from '../../lib/formFields.js'
 import { useRouter } from "next/router";
+import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -106,13 +107,16 @@ export default function ViewFacts({ facts, factTypes }) {
     //facts
     for (var i = 0; i < shownFacts.length; i++) {
       layout.push(
-        <div key={i}>
-          <b>Name: </b>{shownFacts[i].name}<br/>
-          <b>Type: </b>{shownFacts[i].type}<br/>
-          <button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton}>Edit</button>
-          <button id={"delete"+shownFacts[i].id} type="button" onClick={pushDeleteFactButton}>Delete</button><br/>
-          <br/>
-        </div>
+        <Card key={i}>
+          <Card.Header>{shownFacts[i].name}</Card.Header>
+          <ListGroup>
+            <ListGroup.Item>Type: {shownFacts[i].type}</ListGroup.Item>
+          </ListGroup>
+          <Card.Body>
+            <Button id={"edit"+shownFacts[i].id} type="button" onClick={pushEditFactButton} className='mx-2'>Edit</Button>
+            <Button id={"delete"+shownFacts[i].id} type="button" onClick={pushDeleteFactButton}>Delete</Button>
+          </Card.Body>
+        </Card>
       )
     }
     return layout;

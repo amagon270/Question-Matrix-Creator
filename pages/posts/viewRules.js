@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
 import { RuleFields } from '../../lib/formFields.js'
 import { useRouter } from 'next/router';
+import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -144,20 +145,23 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
       }
 
       layout.push(
-        <div key={"rule"+i}>
-          <b>Code: </b>{shownRules[i].code}<br/>
-          <b>Priority: </b>{shownRules[i].priority}<br/>
-          <b>Trigger: </b>{shownRules[i].triggerType}<br/>
-          <b>Tests</b><br/>
-          {/* {testOptions} */}
-          <b>Action</b><br/>
-          <b>Question: </b>{shownRules[i].questionId}<br/>
-          <b>Fact: </b>{shownRules[i].factId}<br/>
-          <b>Fact Value: </b>{shownRules[i].factAction}<br/>
-          <button id={"edit"+shownRules[i].id} type="button" onClick={pushEditRuleButton}>Edit</button>
-          <button id={"delete"+shownRules[i].id} type="button" onClick={pushDeleteRuleButton}>Delete</button><br/>
-          <br/>
-        </div>
+        <Card key={"rule"+i}>
+          <Card.Header>{shownRules[i].code}</Card.Header>
+          <ListGroup>
+            <ListGroup.Item>Priority: {shownRules[i].priority}</ListGroup.Item>
+            <ListGroup.Item>Trigger: {shownRules[i].triggerType}</ListGroup.Item>
+            <ListGroup.Item>Tests</ListGroup.Item>
+            {/* {testOptions} */}
+            <ListGroup.Item>Action</ListGroup.Item>
+            <ListGroup.Item>Question: {shownRules[i].questionId}</ListGroup.Item>
+            <ListGroup.Item>Fact: {shownRules[i].factId}</ListGroup.Item>
+            <ListGroup.Item>Fact Value: {shownRules[i].factAction}</ListGroup.Item>
+          </ListGroup>
+          <Card.Body>
+            <Button id={"edit"+shownRules[i].id} type="button" onClick={pushEditRuleButton} className='mx-2'>Edit</Button>
+            <Button id={"delete"+shownRules[i].id} type="button" onClick={pushDeleteRuleButton}>Delete</Button>
+          </Card.Body>
+        </Card>
       )
     }
     return(layout);

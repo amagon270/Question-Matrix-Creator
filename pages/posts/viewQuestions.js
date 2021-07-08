@@ -4,6 +4,7 @@ import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
 import { QuestionCreateLayout } from '../../lib/formFields.js'
+import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -157,17 +158,20 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         }
       }
       layout.push(
-        <div key={"Question"+i}>
-          <b>Code: </b>{shownQuestions[i].code}<br/>
-          <b>Type: </b>{shownQuestions[i].type}<br/>
-          <b>Text: </b>{shownQuestions[i].text}<br/>
-          <b>Fact: </b>{facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}<br/>
-          {/* {sliderOptions}
-          {optionOptions} */}
-          <button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton}>Edit</button>
-          <button id={"delete"+shownQuestions[i].id} type="button" onClick={pushDeleteQuestionButton}>Delete</button><br/>
-          <br/>
-        </div>
+        <Card key={"Question"+i}>
+          <Card.Header>{shownQuestions[i].code}</Card.Header>
+          <ListGroup>
+            <ListGroup.Item>Type: {shownQuestions[i].type}</ListGroup.Item>
+            <ListGroup.Item>Text: {shownQuestions[i].text}</ListGroup.Item>
+            <ListGroup.Item>Fact: {facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}</ListGroup.Item>
+            {/* {sliderOptions}
+            {optionOptions} */}
+          </ListGroup>
+          <Card.Body>
+            <Button id={"edit"+shownQuestions[i].id} type="button" onClick={pushEditQuestionButton} className='mx-2'>Edit</Button>
+            <Button id={"delete"+shownQuestions[i].id} type="button" onClick={pushDeleteQuestionButton}>Delete</Button>
+          </Card.Body>
+        </Card>
       )
     }
     return layout;
