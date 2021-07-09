@@ -144,17 +144,20 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
         )
       }
 
+      const actionQuestion = questions.find(q => q.id == shownRules[i].questionId).code;
+      const actionFact = facts.find(f => f.id == shownRules[i].factId)?.name;
+
       layout.push(
         <Card key={"rule"+i}>
           <Card.Header>{shownRules[i].code}</Card.Header>
           <ListGroup>
             <ListGroup.Item>Priority: {shownRules[i].priority}</ListGroup.Item>
             <ListGroup.Item>Trigger: {shownRules[i].triggerType}</ListGroup.Item>
-            <ListGroup.Item>Tests</ListGroup.Item>
+            {/* <ListGroup.Item>Tests</ListGroup.Item> */}
             {/* {testOptions} */}
             <ListGroup.Item>Action</ListGroup.Item>
-            <ListGroup.Item>Question: {shownRules[i].questionId}</ListGroup.Item>
-            <ListGroup.Item>Fact: {shownRules[i].factId}</ListGroup.Item>
+            <ListGroup.Item>Question: {actionQuestion}</ListGroup.Item>
+            <ListGroup.Item>Fact: {actionFact}</ListGroup.Item>
             <ListGroup.Item>Fact Value: {shownRules[i].factAction}</ListGroup.Item>
           </ListGroup>
           <Card.Body>

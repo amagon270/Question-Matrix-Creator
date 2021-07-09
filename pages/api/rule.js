@@ -41,10 +41,10 @@ async function writeRuleReq(data) {
   console.log(data)
   const prisma = new PrismaClient();
 
-  var action = {};
+  var action = {questionId: null, factId: null, factAction: null};
   if (data.questionAction != "")
     action.questionId = NaNSafeParse(data.questionAction);
-  if (data.factAction != null)
+  if (data.factAction != null && data.factAction != 0)
     action.factId = NaNSafeParse(data.factAction);
   if (data.factActionValue != "")
     action.factAction = data.factActionValue;
@@ -76,12 +76,13 @@ async function writeRuleReq(data) {
 }
 
 async function updateRuleReq(data) {
+  console.log(data)
   const prisma = new PrismaClient();
 
-  var action = {};
+  var action = {questionId: null, factId: null, factAction: null};
   if (data.questionAction != "")
     action.questionId = NaNSafeParse(data.questionAction);
-  if (data.factAction != "")
+  if (data.factAction != null && data.factAction != 0)
     action.factId = NaNSafeParse(data.factAction);
   if (data.factActionValue != "")
     action.factAction = data.factActionValue;
