@@ -8,12 +8,13 @@ datasource db {
 }
 
 model fact {
-  id        Int         @id @default(autoincrement())
-  name      String
-  type      String
-  factType  factType    @relation(fields: [type], references: [type])
-  rule      rule[]
-  ruleTests ruleTests[]
+  id              Int               @id @default(autoincrement())
+  name            String
+  type            String
+  factType        factType          @relation(fields: [type], references: [type])
+  questionOptions questionOptions[]
+  rule            rule[]
+  ruleTests       ruleTests[]
 }
 
 model factType {
@@ -51,6 +52,8 @@ model questionOptions {
   value       String?
   text        String?
   image       String?
+  factId      Int?
+  fact        fact?    @relation(fields: [factId], references: [id])
   question    question @relation(fields: [questionId], references: [id])
 }
 
