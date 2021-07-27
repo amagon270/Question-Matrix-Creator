@@ -38,7 +38,6 @@ export default async function handler(req, res) {
 }
 
 async function writeRuleReq(data) {
-  console.log(data)
   const prisma = new PrismaClient();
 
   var action = {questionId: null, factId: null, factAction: null};
@@ -76,7 +75,6 @@ async function writeRuleReq(data) {
 }
 
 async function updateRuleReq(data) {
-  console.log(data)
   const prisma = new PrismaClient();
 
   var action = {questionId: null, factId: null, factAction: null};

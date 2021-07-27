@@ -45,7 +45,7 @@ async function writeQuestionReq(data) {
       code: data.code,
       text: data.text,
       type: data.type,
-      factSubject: data.factSubject,
+      factSubject: data.factSubject.toString(),
       min: NaNSafeParse(data.min),
       max: NaNSafeParse(data.max)
     }
@@ -68,7 +68,8 @@ async function writeQuestionReq(data) {
         code: option._code,
         value: option._value,
         text: option._text,
-        image: option._image
+        image: option._image,
+        factId: option._fact
       }
     })
   };
@@ -88,7 +89,7 @@ async function updateQuestionReq(data) {
       code: data.code,
       text: data.text,
       type: data.type,
-      factSubject: data.factSubject,
+      factSubject: data.factSubject.toString(),
       min: NaNSafeParse(data.min),
       max: NaNSafeParse(data.max)
     }
@@ -121,13 +122,15 @@ async function updateQuestionReq(data) {
         code: option.code,
         value: option.value,
         text: option.text,
-        image: option.image
+        image: option.image,
+        factId: option.fact
       },
       update: {
         code: option.code,
         value: option.value,
         text: option.text,
-        image: option.image
+        image: option.image,
+        factId: option.fact
       }
     })
   };

@@ -34,6 +34,8 @@ export default function ViewFacts({ facts, factTypes }) {
   if (editFact != null) {
     factHtml.push(
       FactCreateLayout({
+        factState: editFact,
+        setFactState: setEditFact,
         formSubmit: updateFact,
         factTypes: factTypes,
         existingFact: editFact,

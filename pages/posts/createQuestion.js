@@ -29,9 +29,6 @@ export default function CreateQuestion({ questionTypes, facts }) {
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
-  console.log(questionData)
-  console.log(facts)
-
   return (
     <Layout>
       <p>Questions!!!</p>

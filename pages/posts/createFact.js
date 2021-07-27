@@ -18,6 +18,7 @@ export async function getStaticProps(context) {
 }
 
 export default function CreateFact({ factTypes }) {
+  const [factState, setFactState] = useState({})
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
@@ -32,6 +33,8 @@ export default function CreateFact({ factTypes }) {
   function Form(factTypes) {
     return (
       FactCreateLayout({
+        factState: factState,
+        setFactState: setFactState,
         formSubmit: createFact, 
         factTypes: factTypes
       })

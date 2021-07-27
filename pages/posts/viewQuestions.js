@@ -102,7 +102,6 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
 
   async function pushDeleteQuestionButton(event) {
     event.preventDefault()
-    console.log(event.target)
     const res = await fetch('/api/question', {
       body:  JSON.stringify({
         id: event.target.id.substring(6),
