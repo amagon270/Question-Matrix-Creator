@@ -42,7 +42,8 @@ export default async function handler(req, res) {
           value: option.value,
           text: option.text,
           image: option.image,
-          order: option.optionOrder
+          order: option.optionOrder,
+          factId: option.factId
         })
       });
       filteredLabels.forEach(label => {
