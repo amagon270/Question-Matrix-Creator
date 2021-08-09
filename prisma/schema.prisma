@@ -11,6 +11,7 @@ model fact {
   id              Int               @id @default(autoincrement())
   name            String
   type            String
+  negatedFacts    Int[]
   factType        factType          @relation(fields: [type], references: [type])
   questionOptions questionOptions[]
   rule            rule[]
@@ -98,4 +99,9 @@ model ruleTrigger {
   type String @id
   seq  Int
   rule rule[]
+}
+
+model theme {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar
 }

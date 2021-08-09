@@ -3,22 +3,27 @@ import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { FactCreateLayout } from '../../lib/formFields.js'
 import { useRouter } from 'next/router';
+import { useState } from 'react'
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
+  var themes = await prisma.theme.findMany();
+  var facts = await prisma.fact.findMany();
   var factTypes = await prisma.factType.findMany()
     .finally(async () => {
       await prisma.$disconnect()
     });
   return {
     props: {
-      factTypes
+      factTypes,
+      facts,
+      themes
     }
   }
 }
 
-export default function CreateFact({ factTypes }) {
-  const [factState, setFactState] = useState({})
+export default function CreateFact({ factTypes, facts, themes }) {
+  const [factState, setFactState] = useState({facts: facts})
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
@@ -36,7 +41,8 @@ export default function CreateFact({ factTypes }) {
         factState: factState,
         setFactState: setFactState,
         formSubmit: createFact, 
-        factTypes: factTypes
+        factTypes: factTypes,
+        themes: themes
       })
     )
   }
@@ -47,7 +53,8 @@ export default function CreateFact({ factTypes }) {
     const res = await fetch('/api/fact', {
       body:  JSON.stringify({
         name: event.target.name.value,
-        type: event.target.factType.value
+        type: event.target.factType.value,
+        negateFacts: factState.negateFacts
       }),
       headers: {
         'Content-Type': 'application/json'

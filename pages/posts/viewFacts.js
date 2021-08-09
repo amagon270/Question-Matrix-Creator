@@ -9,6 +9,7 @@ import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
+  var themes = await prisma.theme.findMany();
   var facts = await prisma.fact.findMany()
   var factTypes = await prisma.factType.findMany()
   .finally(async () => {
@@ -18,12 +19,13 @@ export async function getServerSideProps(context) {
   return {
     props: {
       facts,
-      factTypes
+      factTypes,
+      themes
     }
   }
 }
 
-export default function ViewFacts({ facts, factTypes }) {
+export default function ViewFacts({ facts, factTypes, themes }) {
   const [shownFacts, setShownFacts] = useState(facts);
   const [editFact, setEditFact] = useState(null);
 
@@ -38,6 +40,7 @@ export default function ViewFacts({ facts, factTypes }) {
         setFactState: setEditFact,
         formSubmit: updateFact,
         factTypes: factTypes,
+        themes: themes,
         existingFact: editFact,
         submitButtonLabel: "save"
       })
@@ -59,7 +62,8 @@ export default function ViewFacts({ facts, factTypes }) {
       body:  JSON.stringify({
         id: editFact.id,
         name: event.target.name.value,
-        type: event.target.factType.value
+        type: event.target.factType.value,
+        negateFacts: editFact.negateFacts
       }),
       headers: {
         'Content-Type': 'application/json'
@@ -74,7 +78,10 @@ export default function ViewFacts({ facts, factTypes }) {
   }
 
   function pushEditFactButton(event) {
-    setEditFact(facts.find(fact => fact.id == event.target.id.substring(4)))
+    var fact = facts.find(fact => fact.id == event.target.id.substring(4));
+    fact.facts = facts;
+    setEditFact(fact);
+
   }
 
   async function pushDeleteFactButton(event) {

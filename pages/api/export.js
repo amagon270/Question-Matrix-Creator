@@ -22,6 +22,14 @@ export default async function handler(req, res) {
     const rules = await prisma.rule.findMany();
     const ruleTests = await prisma.ruleTests.findMany();
 
+
+    //basically null safety
+    factExport.push({
+      id: 0,
+      text: "blank",
+      tags: [],
+      value: ""
+    })
     facts.forEach(fact => {
       factExport.push({
         id: fact.id,

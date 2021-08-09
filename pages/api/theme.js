@@ -15,12 +15,12 @@ export default async function handler(req, res) {
   await cors(req, res);
 
   if (req.method === "GET") {
-    res.status(200).json({ text: 'Facts' });
+    res.status(200).json({ text: 'Themes' });
   } 
   
   if (req.method === "POST") {
     try {
-      let response = await writeFactReq(req.body);
+      let response = await writeThemeReq(req.body);
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   
   if (req.method === "PUT") {
     try {
-      let response = await updateFactReq(req.body);
+      let response = await updateThemeReq(req.body);
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     try {
-      let response = await deleteFactReq(req.body);
+      let response = await deleteThemeReq(req.body);
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -49,38 +49,34 @@ export default async function handler(req, res) {
   }
 }
 
-async function writeFactReq(data) {
+async function writeThemeReq(data) {
   const prisma = new PrismaClient();
-  await prisma.fact.create({
+  await prisma.theme.create({
     data: {
       name: data.name,
-      type: data.type,
-      negatedFacts: data.negateFacts
     }
   })
   prisma.$disconnect();
-  return ("Created Fact " + data.name);
+  return ("Created Theme " + data.name);
 }
 
-async function updateFactReq(data) {
+async function updateThemeReq(data) {
   const prisma = new PrismaClient();
-  await prisma.fact.update({
+  await prisma.theme.update({
     where: { id: data.id },
     data: {
       name: data.name,
-      type: data.type,
-      negatedFacts: data.negateFacts
     }
   })
   prisma.$disconnect();
-  return("Updated Fact " + data.name);
+  return("Updated Theme " + data.name);
 }
 
-async function deleteFactReq(data) {
+async function deleteThemeReq(data) {
   const prisma = new PrismaClient();
-  await prisma.fact.delete({
+  await prisma.theme.delete({
     where: { id: NaNSafeParse(data.id) },
   })
   prisma.$disconnect();
-  return("Deleted Fact " + data.name);
+  return("Deleted Theme " + data.name);
 }
