@@ -9,10 +9,10 @@ import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-  var rules = await prisma.rule.findMany()
-  var ruleTests = await prisma.ruleTests.findMany()
-  var questions = await prisma.question.findMany()
-  var facts = await prisma.fact.findMany()
+  var rules = await prisma.rule.findMany();
+  var ruleTests = await prisma.ruleTests.findMany();
+  var questions = await prisma.question.findMany();
+  var facts = await prisma.fact.findMany();
   questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
   facts.unshift({id: 0, name: "none", type: "bool"});
   var ruleTriggers = await prisma.ruleTrigger.findMany();
@@ -28,12 +28,13 @@ export async function getServerSideProps(context) {
       ruleTriggers,
       ruleOperations,
       questions,
-      facts
+      facts,
+      themes
     }
   }
 }
 
-export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperations, questions, facts }) {
+export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperations, questions, facts}) {
   const [shownRules, setShownRules] = useState(rules);
   const [editRuleData, setEditRuleData] = useState(null);
 

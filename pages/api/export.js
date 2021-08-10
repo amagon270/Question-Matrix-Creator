@@ -21,9 +21,10 @@ export default async function handler(req, res) {
     const facts = await prisma.fact.findMany();
     const rules = await prisma.rule.findMany();
     const ruleTests = await prisma.ruleTests.findMany();
+    const themes = await prisma.theme.findMany();
 
 
-    //basically null safety
+    //null safety in the app
     factExport.push({
       id: 0,
       text: "blank",
@@ -35,7 +36,8 @@ export default async function handler(req, res) {
         id: fact.id,
         text: fact.name,
         tags: [],
-        value: ""
+        value: "",
+        negatedFacts: fact.negatedFacts
       })
     });
     

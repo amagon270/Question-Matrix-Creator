@@ -47,6 +47,8 @@ async function writeRuleReq(data) {
     action.factId = NaNSafeParse(data.factAction);
   if (data.factActionValue != "")
     action.factAction = data.factActionValue;
+  if (data.themeAction != 1 && data.themeAction != "")
+    action.theme = data.themeAction
   
   const rule = await prisma.rule.create({
     data: {
@@ -55,7 +57,8 @@ async function writeRuleReq(data) {
       priority: NaNSafeParse(data.priority),
       factId: action.factId,
       factAction: action.factAction,
-      questionId: action.questionId
+      questionId: action.questionId,
+      theme: action.theme
     }
   })
 
@@ -84,6 +87,8 @@ async function updateRuleReq(data) {
     action.factId = NaNSafeParse(data.factAction);
   if (data.factActionValue != "")
     action.factAction = data.factActionValue;
+  if (data.themeAction != 1 && data.themeAction != "")
+    action.theme = data.themeAction
 
   const rule = await prisma.rule.update({
     where: {
@@ -95,7 +100,8 @@ async function updateRuleReq(data) {
       priority: NaNSafeParse(data.priority),
       factId: action.factId,
       factAction: action.factAction,
-      questionId: action.questionId
+      questionId: action.questionId,
+      theme: action.theme
     }
   })
 

@@ -24,7 +24,8 @@ export async function getStaticProps(context) {
       ruleTriggers,
       ruleOperations,
       questions,
-      facts
+      facts,
+      themes
     }
   }
 }
@@ -50,7 +51,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
         facts: facts,
         ruleData: ruleData,
         setRuleData: setRuleData, 
-        formSubmit: createRule
+        formSubmit: createRule,
       })
     )
   }
