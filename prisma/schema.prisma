@@ -8,14 +8,16 @@ datasource db {
 }
 
 model fact {
-  id              Int               @id @default(autoincrement())
-  name            String
-  type            String
-  negatedFacts    Int[]
-  factType        factType          @relation(fields: [type], references: [type])
-  questionOptions questionOptions[]
-  rule            rule[]
-  ruleTests       ruleTests[]
+  id                Int               @id @default(autoincrement())
+  name              String
+  type              String
+  negatedFacts      Int[]
+  theme             Int?
+  theme_factTotheme theme?            @relation(fields: [theme], references: [id])
+  factType          factType          @relation(fields: [type], references: [type])
+  questionOptions   questionOptions[]
+  rule              rule[]
+  ruleTests         ruleTests[]
 }
 
 model factType {
@@ -104,4 +106,5 @@ model ruleTrigger {
 model theme {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar
+  fact fact[]
 }

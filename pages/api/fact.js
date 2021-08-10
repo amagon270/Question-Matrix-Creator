@@ -50,11 +50,13 @@ export default async function handler(req, res) {
 }
 
 async function writeFactReq(data) {
+  console.log(data);
   const prisma = new PrismaClient();
   await prisma.fact.create({
     data: {
       name: data.name,
       type: data.type,
+      theme: NaNSafeParse(data.theme),
       negatedFacts: data.negateFacts
     }
   })
@@ -69,6 +71,7 @@ async function updateFactReq(data) {
     data: {
       name: data.name,
       type: data.type,
+      theme: NaNSafeParse(data.theme),
       negatedFacts: data.negateFacts
     }
   })

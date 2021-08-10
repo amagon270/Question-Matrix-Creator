@@ -63,6 +63,7 @@ export default function ViewFacts({ facts, factTypes, themes }) {
         id: editFact.id,
         name: event.target.name.value,
         type: event.target.factType.value,
+        theme: event.target.theme.value,
         negateFacts: editFact.negateFacts
       }),
       headers: {

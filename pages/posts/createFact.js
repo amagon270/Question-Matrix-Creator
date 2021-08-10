@@ -54,6 +54,7 @@ export default function CreateFact({ factTypes, facts, themes }) {
       body:  JSON.stringify({
         name: event.target.name.value,
         type: event.target.factType.value,
+        theme: event.target.theme.value,
         negateFacts: factState.negateFacts
       }),
       headers: {
