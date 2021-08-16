@@ -59,6 +59,19 @@ export default async function handler(req, res) {
       filteredLabels.forEach(label => {
         labels.push(label.label)
       });
+
+      if (question.type == "Theme") {
+        const filteredFacts = facts.filter(fact => fact.theme == question.theme);
+        filteredFacts.forEach((fact, index) => {
+          options.push({
+            code: fact.id,
+            value: true,
+            text: fact.name,
+            order: index,
+            factId: fact.id
+          });
+        });
+      }
       questionExport.push({
         id: question.id,
         code: question.code,

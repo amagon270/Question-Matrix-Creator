@@ -27,17 +27,19 @@ model factType {
 }
 
 model question {
-  id              Int               @id @default(autoincrement())
-  code            String
-  text            String?
-  factSubject     String?
-  type            String
-  min             Int?
-  max             Int?
-  questionType    questionType      @relation(fields: [type], references: [type])
-  questionLables  questionLables[]
-  questionOptions questionOptions[]
-  rule            rule[]
+  id                    Int               @id @default(autoincrement())
+  code                  String
+  text                  String?
+  factSubject           String?
+  type                  String
+  min                   Int?
+  max                   Int?
+  theme                 Int?
+  theme_questionTotheme theme?            @relation(fields: [theme], references: [id])
+  questionType          questionType      @relation(fields: [type], references: [type])
+  questionLables        questionLables[]
+  questionOptions       questionOptions[]
+  rule                  rule[]
 }
 
 model questionLables {
@@ -104,7 +106,8 @@ model ruleTrigger {
 }
 
 model theme {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar
-  fact fact[]
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar
+  fact     fact[]
+  question question[]
 }

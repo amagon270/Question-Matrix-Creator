@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
+  var themes = await prisma.theme.findMany();
   var questionTypes = await prisma.questionType.findMany()
   var facts = await prisma.fact.findMany()
   .finally(async () => {
@@ -16,12 +17,13 @@ export async function getStaticProps(context) {
   return {
     props: {
       questionTypes,
-      facts
+      facts,
+      themes
     }
   }
 }
 
-export default function CreateQuestion({ questionTypes, facts }) {
+export default function CreateQuestion({ questionTypes, facts, themes }) {
   const [questionData, setQuestionData] = useState({labels: [], questionType: null, options: []});
   const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
   const sliderQuestionTypes = ["Slider", "TextSlider"];
@@ -47,7 +49,8 @@ export default function CreateQuestion({ questionTypes, facts }) {
         formSubmit: createQuestion,
         optionQuestionTypes: optionQuestionTypes,
         sliderQuestionTypes: sliderQuestionTypes,
-        numberOfOptions: numberOfOptions
+        numberOfOptions: numberOfOptions,
+        themes: themes
       })
     )
   }
@@ -63,7 +66,8 @@ export default function CreateQuestion({ questionTypes, facts }) {
         options: questionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,
-        labels: questionData.labels
+        labels: questionData.labels,
+        theme: event.target.theme?.value
       }),
       headers: {
         'Content-Type': 'application/json'

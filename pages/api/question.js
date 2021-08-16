@@ -47,7 +47,8 @@ async function writeQuestionReq(data) {
       type: data.type,
       factSubject: data.factSubject.toString(),
       min: NaNSafeParse(data.min),
-      max: NaNSafeParse(data.max)
+      max: NaNSafeParse(data.max),
+      theme: NaNSafeParse(data.theme)
     }
   })
 
@@ -91,7 +92,8 @@ async function updateQuestionReq(data) {
       type: data.type,
       factSubject: data.factSubject.toString(),
       min: NaNSafeParse(data.min),
-      max: NaNSafeParse(data.max)
+      max: NaNSafeParse(data.max),
+      theme: data.theme
     }
   })
 

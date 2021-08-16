@@ -8,6 +8,7 @@ import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
+  var themes = await prisma.theme.findMany();
   var questions = await prisma.question.findMany()
   var questionLabels = await prisma.questionLables.findMany()
   var questionOptions = await prisma.questionOptions.findMany()
@@ -23,12 +24,13 @@ export async function getServerSideProps(context) {
       questionLabels,
       questionOptions,
       facts,
-      questionTypes
+      questionTypes,
+      themes
     }
   }
 }
 
-export default function ViewQuestion({ questions, questionLabels, questionOptions, facts, questionTypes }) {
+export default function ViewQuestion({ questions, questionLabels, questionOptions, facts, questionTypes, themes }) {
   const [shownQuestions, setShownQuestions] = useState(questions);
   const [editQuestionData, setEditQuestionData] = useState(null);
   const sliderQuestionTypes = ["Slider", "TextSlider"];
@@ -50,7 +52,8 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         existingQuestion: editQuestionData.question,
         optionQuestionTypes: optionQuestionTypes,
         sliderQuestionTypes: sliderQuestionTypes,
-        numberOfOptions: numberOfOptions
+        numberOfOptions: numberOfOptions,
+        themes: themes
       })
     )
   } else {
@@ -75,7 +78,8 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         options: editQuestionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,
-        labels: editQuestionData.labels
+        labels: editQuestionData.labels,
+        theme: event.target.theme?.value
       }),
       headers: {
         'Content-Type': 'application/json'
