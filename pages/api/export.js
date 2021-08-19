@@ -64,7 +64,7 @@ export default async function handler(req, res) {
         const filteredFacts = facts.filter(fact => fact.theme == question.theme);
         filteredFacts.forEach((fact, index) => {
           options.push({
-            code: fact.id,
+            code: fact.id.toString(),
             value: true,
             text: fact.name,
             order: index,
