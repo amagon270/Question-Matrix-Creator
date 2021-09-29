@@ -10,6 +10,7 @@ export async function getStaticProps(context) {
 
   var questions = await prisma.question.findMany();
   var facts = await prisma.fact.findMany();
+  var themes = await prisma.theme.findMany();
   questions.unshift({id: null, code: null, type: 'TextOnly'});
   facts.unshift({id: null, name: null, type: "bool"});
 

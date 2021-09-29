@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { NaNSafeParse} from '../../lib/utility'
+import { NaNSafeParse, nullParse } from '../../lib/utility'
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
@@ -38,8 +38,9 @@ export default async function handler(req, res) {
 }
 
 async function writeQuestionReq(data) {
+  console.log(data)
   const prisma = new PrismaClient();
-  
+
   const question = await prisma.question.create({
     data: {
       code: data.code,
@@ -48,7 +49,7 @@ async function writeQuestionReq(data) {
       factSubject: data.factSubject.toString(),
       min: NaNSafeParse(data.min),
       max: NaNSafeParse(data.max),
-      theme: NaNSafeParse(data.theme)
+      theme: nullParse(data.theme)
     }
   })
 
@@ -80,6 +81,7 @@ async function writeQuestionReq(data) {
 }
 
 async function updateQuestionReq(data) {
+  console.log(data)
   const prisma = new PrismaClient();
 
   const question = await prisma.question.update({
@@ -93,7 +95,7 @@ async function updateQuestionReq(data) {
       factSubject: data.factSubject.toString(),
       min: NaNSafeParse(data.min),
       max: NaNSafeParse(data.max),
-      theme: data.theme
+      theme: nullParse(data.theme)
     }
   })
 
