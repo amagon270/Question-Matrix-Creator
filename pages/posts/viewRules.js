@@ -13,6 +13,7 @@ export async function getServerSideProps(context) {
   var ruleTests = await prisma.ruleTests.findMany();
   var questions = await prisma.question.findMany();
   var facts = await prisma.fact.findMany();
+  var themes = await prisma.theme.findMany();
   questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
   facts.unshift({id: 0, name: "none", type: "bool"});
   var ruleTriggers = await prisma.ruleTrigger.findMany();
@@ -34,7 +35,7 @@ export async function getServerSideProps(context) {
   }
 }
 
-export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperations, questions, facts}) {
+export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperations, questions, facts, themes}) {
   const [shownRules, setShownRules] = useState(rules);
   const [editRuleData, setEditRuleData] = useState(null);
 
@@ -49,6 +50,7 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
         ruleOperations: ruleOperations,
         questions: questions,
         facts: facts,
+        themes: themes,
         ruleData: editRuleData,
         setRuleData: setEditRuleData, 
         formSubmit: updateRule

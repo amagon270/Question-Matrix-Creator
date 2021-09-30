@@ -39,6 +39,9 @@ export default async function handler(req, res) {
 
 async function writeQuestionReq(data) {
   const prisma = new PrismaClient();
+  if (data.theme == null || data.theme == '') {
+    data.theme = 1;
+  }
   
   const question = await prisma.question.create({
     data: {
@@ -81,6 +84,9 @@ async function writeQuestionReq(data) {
 
 async function updateQuestionReq(data) {
   const prisma = new PrismaClient();
+  if (data.theme == null || data.theme == '') {
+    data.theme = 1;
+  }
 
   const question = await prisma.question.update({
     where: {
