@@ -52,11 +52,19 @@ export default async function handler(req, res) {
 async function writeFactReq(data) {
   console.log(data);
   const prisma = new PrismaClient();
+
+  var theme;
+  if (NaNSafeParse(data.theme) == 0) {
+    theme = null;
+  } else {
+    theme = NaNSafeParse(data.theme);
+  }
+
   await prisma.fact.create({
     data: {
       name: data.name,
       type: data.type,
-      theme: NaNSafeParse(data.theme),
+      theme: theme,
       negatedFacts: data.negateFacts
     }
   })

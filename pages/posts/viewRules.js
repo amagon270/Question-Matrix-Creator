@@ -17,7 +17,8 @@ export async function getServerSideProps(context) {
   questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
   facts.unshift({id: 0, name: "none", type: "bool"});
   var ruleTriggers = await prisma.ruleTrigger.findMany();
-  var ruleOperations = await prisma.ruleOperation.findMany()
+  var ruleOperations = await prisma.ruleOperation.findMany();
+  const themes = await prisma.theme.findMany()
   .finally(async () => {
     await prisma.$disconnect()
   });
