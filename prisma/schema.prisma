@@ -13,6 +13,7 @@ model fact {
   type              String
   negatedFacts      Int[]
   theme             Int?
+  display           String?
   theme_factTotheme theme?            @relation(fields: [theme], references: [id])
   factType          factType          @relation(fields: [type], references: [type])
   questionOptions   questionOptions[]

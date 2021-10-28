@@ -40,8 +40,8 @@ export default async function handler(req, res) {
 async function writeQuestionReq(data) {
   console.log(data)
   const prisma = new PrismaClient();
-  if (data.theme == null || data.theme == '') {
-    data.theme = 1;
+  if (data.theme == '') {
+    data.theme = null;
   }
   
   const question = await prisma.question.create({
@@ -86,9 +86,10 @@ async function writeQuestionReq(data) {
 async function updateQuestionReq(data) {
   console.log(data)
   const prisma = new PrismaClient();
-  if (data.theme == null || data.theme == '') {
-    data.theme = 1;
+  if (data.theme == '') {
+    data.theme = null;
   }
+  console.log(data.theme);
 
   const question = await prisma.question.update({
     where: {

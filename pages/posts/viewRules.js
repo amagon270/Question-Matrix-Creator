@@ -17,8 +17,7 @@ export async function getServerSideProps(context) {
   questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
   facts.unshift({id: 0, name: "none", type: "bool"});
   var ruleTriggers = await prisma.ruleTrigger.findMany();
-  var ruleOperations = await prisma.ruleOperation.findMany();
-  const themes = await prisma.theme.findMany()
+  var ruleOperations = await prisma.ruleOperation.findMany()
   .finally(async () => {
     await prisma.$disconnect()
   });
@@ -88,7 +87,14 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
 
     const result = await res.json();
 
-    refreshData();
+    const rule = rules.find(rule => rule.id == editRuleData.rule.id);
+    rule.code = event.target.code.value;
+    rule.trigger = event.target.triggers.value;
+    rule.priority = event.target.priority.value;
+    rule.questionAction = event.target.questions.value;
+    rule.factAction = event.target.facts.value;
+    rule.factActionValue = event.target.factValue.value;
+    rule.tests = editRuleData.tests;
     setEditRuleData(null);
   }
 
@@ -132,7 +138,7 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
     layout.push(
       <div key="Search">
         <>Search: </>
-        {Search(rules, "triggerType", setShownRules)}
+        {Search(rules, "code", setShownRules)}
       </div>
     );
     

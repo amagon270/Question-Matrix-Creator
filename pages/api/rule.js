@@ -38,6 +38,7 @@ export default async function handler(req, res) {
 }
 
 async function writeRuleReq(data) {
+  console.log(data);
   const prisma = new PrismaClient();
 
   var action = {questionId: null, factId: null, factAction: null};
@@ -79,6 +80,7 @@ async function writeRuleReq(data) {
 
 async function updateRuleReq(data) {
   const prisma = new PrismaClient();
+  console.log(data);
 
   var action = {questionId: null, factId: null, factAction: null};
   if (data.questionAction != "")
@@ -105,6 +107,7 @@ async function updateRuleReq(data) {
     }
   })
 
+  var testIds = [];
   for (const test of data.tests) {
     const testId = await prisma.ruleTests.upsert({
       where: {
@@ -122,7 +125,18 @@ async function updateRuleReq(data) {
         parameter: test.parameter
       }
     })
+    testIds.push(testId.id);
   };
+
+  //delete any removed tests
+  const storedTests = await prisma.ruleTests.findMany({where: {ruleId: data.id}});
+  for (const test of storedTests) {
+    if (!testIds.includes(test.id)) {
+      await prisma.ruleTests.delete({
+        where: {id: test.id}
+      })
+    }
+  }
 
   prisma.$disconnect();
   return ("Updated Rule " + rule.code);
@@ -133,15 +147,15 @@ async function deleteRuleReq(data) {
 
   const ruleId = NaNSafeParse(data.id)
 
-  const rule = await prisma.rule.delete({
-    where: {
-      id: ruleId
-    }
-  })
-
   await prisma.ruleTests.deleteMany({
     where: {
       ruleId: ruleId
+    }
+  })
+
+  const rule = await prisma.rule.delete({
+    where: {
+      id: ruleId
     }
   })
 
