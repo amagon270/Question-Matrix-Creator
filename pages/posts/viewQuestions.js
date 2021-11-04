@@ -79,7 +79,8 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         min: event.target.min?.value,
         max: event.target.max?.value,
         labels: editQuestionData.labels,
-        theme: event.target.theme?.value
+        theme: event.target.theme?.value,
+        timer: event.target.timer.value
       }),
       headers: {
         'Content-Type': 'application/json'
