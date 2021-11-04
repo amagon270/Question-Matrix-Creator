@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { createClient } from '@supabase/supabase-js'
+import { loadEnvConfig } from '@next/env'
 
 export default async function handler(req, res) {
   const prisma = new PrismaClient();
@@ -116,8 +117,8 @@ export default async function handler(req, res) {
     });
 
     const supabase = createClient(
-      process.env(SUPABASE_URL),
-      process.env(SUPABASE_KEY)
+      process.env(NEXT_PUBLIC_SUPABASE_URL),
+      process.env(NEXT_PUBLIC_SUPABASE_KEY)
     );
     console.log("saving to bucket");
     let { error } = await supabase.storage.from("personas").update("export.json", exportData);
