@@ -116,8 +116,8 @@ export default async function handler(req, res) {
     });
 
     const supabase = createClient(
-      env(SUPABASE_URL),
-      env(SUPABASE_KEY)
+      process.env(SUPABASE_URL),
+      process.env(SUPABASE_KEY)
     );
     console.log("saving to bucket");
     let { error } = await supabase.storage.from("personas").update("export.json", exportData);
