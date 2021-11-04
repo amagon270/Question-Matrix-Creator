@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client'
 import { createClient } from '@supabase/supabase-js'
-import { loadEnvConfig } from '@next/env'
 
 export default async function handler(req, res) {
   const prisma = new PrismaClient();
@@ -117,8 +116,8 @@ export default async function handler(req, res) {
     });
 
     const supabase = createClient(
-      process.env(NEXT_PUBLIC_SUPABASE_URL),
-      process.env(NEXT_PUBLIC_SUPABASE_KEY)
+      "https://usqmtvptioodqnbokizz.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjI1NDUwMDUyLCJleHAiOjE5NDEwMjYwNTJ9.XHUkRUAdDQ5UxsjB9ZyWnNZcf3h0B8kPHAqYkvRjqi8"
     );
     console.log("saving to bucket");
     let { error } = await supabase.storage.from("personas").update("export.json", exportData);
