@@ -119,8 +119,9 @@ export default async function handler(req, res) {
       env(SUPABASE_URL),
       env(SUPABASE_KEY)
     );
+    console.log("saving to bucket");
     let { error } = await supabase.storage.from("personas").update("export.json", exportData);
-    console.log(error)
+    console.log(error);
     res.status(200).json(exportData)
   }
 }
