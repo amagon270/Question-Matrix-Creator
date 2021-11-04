@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
   const prisma = new PrismaClient();
@@ -113,6 +114,13 @@ export default async function handler(req, res) {
       questions: questionExport,
       rules: ruleExport
     });
+
+    const supabase = createClient(
+      env(SUPABASE_URL),
+      env(SUPABASE_KEY)
+    );
+    let { error } = await supabase.storage.from("personas").update("export.json", exportData);
+    console.log(error)
     res.status(200).json(exportData)
   }
 }
