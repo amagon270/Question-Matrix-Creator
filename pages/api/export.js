@@ -115,13 +115,12 @@ export default async function handler(req, res) {
       rules: ruleExport
     });
 
-    const supabase = createClient(
-      "https://usqmtvptioodqnbokizz.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjI1NDUwMDUyLCJleHAiOjE5NDEwMjYwNTJ9.XHUkRUAdDQ5UxsjB9ZyWnNZcf3h0B8kPHAqYkvRjqi8"
-    );
-    console.log("saving to bucket");
-    let { error } = await supabase.storage.from("personas").update("export.json", exportData);
-    console.log(error);
+    // const supabase = createClient(
+    //   "https://usqmtvptioodqnbokizz.supabase.co",
+    //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjI1NDUwMDUyLCJleHAiOjE5NDEwMjYwNTJ9.XHUkRUAdDQ5UxsjB9ZyWnNZcf3h0B8kPHAqYkvRjqi8"
+    // );
+    //let { error } = await supabase.storage.from("personas").update("export.json", exportData);
+    // console.log(error);
     res.status(200).json(exportData)
   }
 }
