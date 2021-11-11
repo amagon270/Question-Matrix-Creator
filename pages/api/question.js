@@ -43,6 +43,7 @@ async function writeQuestionReq(data) {
   if (data.theme == '') {
     data.theme = null;
   }
+  console.log("alive1");
   
   const question = await prisma.question.create({
     data: {
@@ -56,6 +57,8 @@ async function writeQuestionReq(data) {
     }
   })
 
+  console.log("alive2");
+
   for (const label of data.labels) {
     await prisma.questionLables.create({
       data: {
@@ -64,6 +67,8 @@ async function writeQuestionReq(data) {
       }
     })
   };
+
+  console.log("alive3");
 
   for (const option of data.options) {
     await prisma.questionOptions.create({
