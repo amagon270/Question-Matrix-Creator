@@ -10,6 +10,7 @@ export default async function handler(req, res) {
       console.log(error)
       res.status(500).json({ text: error })
     }
+    prisma.$disconnect();
   }
 
   async function createJson() {

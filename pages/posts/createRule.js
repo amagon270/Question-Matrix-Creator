@@ -16,9 +16,7 @@ export async function getStaticProps(context) {
 
   var ruleTriggers = await prisma.ruleTrigger.findMany();
   var ruleOperations = await prisma.ruleOperation.findMany()
-  .finally(async () => {
-    await prisma.$disconnect()
-  });
+  await prisma.$disconnect()
 
   return {
     props: {

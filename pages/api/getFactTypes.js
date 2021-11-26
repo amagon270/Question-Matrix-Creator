@@ -7,4 +7,5 @@ export default async function handler(req, res) {
   questionTypes = await prisma.questionType.findMany();
   res.status(200).json({ text: questionTypes })
 
+  prisma.$disconnect();
 }

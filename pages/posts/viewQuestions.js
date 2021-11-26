@@ -14,9 +14,7 @@ export async function getServerSideProps(context) {
   var questionOptions = await prisma.questionOptions.findMany()
   var facts = await prisma.fact.findMany()
   var questionTypes = await prisma.questionType.findMany()
-  .finally(async () => {
-    await prisma.$disconnect()
-  });
+  await prisma.$disconnect()
 
   return {
     props: {

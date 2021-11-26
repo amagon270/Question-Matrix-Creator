@@ -8,11 +8,9 @@ import { useRouter } from 'next/router';
 export async function getStaticProps(context) {
   const prisma = new PrismaClient();
   var themes = await prisma.theme.findMany();
-  var questionTypes = await prisma.questionType.findMany()
+  var questionTypes = await prisma.questionType.findMany();
   var facts = await prisma.fact.findMany()
-  .finally(async () => {
-    await prisma.$disconnect()
-  });
+  await prisma.$disconnect()
 
   return {
     props: {

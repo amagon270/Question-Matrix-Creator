@@ -10,9 +10,7 @@ export async function getStaticProps(context) {
   var themes = await prisma.theme.findMany();
   var facts = await prisma.fact.findMany();
   var factTypes = await prisma.factType.findMany()
-    .finally(async () => {
-      await prisma.$disconnect()
-    });
+  await prisma.$disconnect()
   return {
     props: {
       factTypes,

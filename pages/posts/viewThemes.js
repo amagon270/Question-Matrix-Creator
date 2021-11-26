@@ -9,11 +9,8 @@ import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-  var themes = await prisma.theme.findMany()
-  .finally(async () => {
-    await prisma.$disconnect()
-  });
-
+  var themes = await prisma.theme.findMany();
+  await prisma.$disconnect();
   return {
     props: {
       themes,

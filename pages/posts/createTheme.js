@@ -1,6 +1,5 @@
 import React from "react";
 import Layout from '../../components/layout'
-import { PrismaClient } from '@prisma/client'
 import { ThemeCreateLayout } from '../../lib/formFields.js'
 import { useRouter } from 'next/router';
 import { useState } from 'react'
