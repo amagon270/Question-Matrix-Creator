@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
-import { FactCreateLayout } from '../../lib/formFields.js'
+import { FactCreateLayout } from '../../lib/formFields.jsx'
 import { useRouter } from 'next/router';
 import { useState } from 'react'
 

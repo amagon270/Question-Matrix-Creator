@@ -2,7 +2,7 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
-import { QuestionCreateLayout } from '../../lib/formFields.js'
+import { QuestionCreateLayout } from '../../lib/formFields.jsx'
 import { useRouter } from 'next/router';
 
 export async function getStaticProps(context) {

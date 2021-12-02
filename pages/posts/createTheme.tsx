@@ -1,6 +1,6 @@
 import React from "react";
 import Layout from '../../components/layout'
-import { ThemeCreateLayout } from '../../lib/formFields.js'
+import { ThemeCreateLayout } from '../../lib/formFields.jsx'
 import { useRouter } from 'next/router';
 import { useState } from 'react'
 

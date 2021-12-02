@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useRouter } from 'next/router';
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
-import { Search } from '../../lib/search.js'
-import { QuestionCreateLayout } from '../../lib/formFields.js'
+import { Search } from '../../lib/search.jsx'
+import { QuestionCreateLayout } from '../../lib/formFields.jsx'
 import { Card, ListGroup, Button } from "react-bootstrap";
 
 export async function getServerSideProps(context) {

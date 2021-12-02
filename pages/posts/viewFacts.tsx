@@ -2,8 +2,8 @@ import React from "react";
 import { useState } from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
-import { Search } from '../../lib/search.js'
-import { FactCreateLayout as FactCreateLayout } from '../../lib/formFields.js'
+import { Search } from '../../lib/search.jsx'
+import { FactCreateLayout as FactCreateLayout } from '../../lib/formFields.jsx'
 import { useRouter } from "next/router";
 import { Card, ListGroup, Button } from "react-bootstrap";
 

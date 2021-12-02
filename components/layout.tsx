@@ -1,15 +1,11 @@
-import Head from 'next/head'
-import Image from 'next/image'
 import styles from './layout.module.css'
-import utilStyles from '../styles/utils.module.css'
-import Link from 'next/link'
 import { Navbar, NavDropdown } from 'react-bootstrap'
 
 
 const name = "robert Bartlett"
 export const siteTitle = 'Question Matrix Creator'
 
-export default function Layout({ children, home }) {
+const Layout: React.FC = ({ children }) => {
   return (
     <div className={styles.container}>
       <Navbar bg="light" expand="lg">
@@ -31,3 +27,5 @@ export default function Layout({ children, home }) {
     </div>
   )
 }
+
+export default Layout;
