@@ -14,17 +14,24 @@ model fact {
   negatedFacts      Int[]
   theme             Int?
   display           String?
-  theme_factTotheme theme?            @relation(fields: [theme], references: [id])
-  factType          factType          @relation(fields: [type], references: [type])
+  theme_factTotheme theme?            @relation(fields: [theme], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  factType          factType          @relation(fields: [type], references: [type], onDelete: NoAction, onUpdate: NoAction)
   questionOptions   questionOptions[]
   rule              rule[]
   ruleTests         ruleTests[]
 }
 
 model factType {
-  type String @id
+  type String @id(map: "facttype_pkey")
   seq  Int
   fact fact[]
+}
+
+model personas {
+  id    Int    @id @default(autoincrement())
+  user  Int?
+  data  Json?  @db.Json
+  users users? @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model question {
@@ -36,22 +43,22 @@ model question {
   min                   Int?
   max                   Int?
   theme                 Int?
-  theme_questionTotheme theme?            @relation(fields: [theme], references: [id])
-  questionType          questionType      @relation(fields: [type], references: [type])
+  theme_questionTotheme theme?            @relation(fields: [theme], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  questionType          questionType      @relation(fields: [type], references: [type], onDelete: NoAction, onUpdate: NoAction)
   questionLables        questionLables[]
   questionOptions       questionOptions[]
   rule                  rule[]
 }
 
 model questionLables {
-  id         Int      @id @default(autoincrement())
+  id         Int      @id(map: "questionlables_pkey") @default(autoincrement())
   questionId Int
   label      String
-  question   question @relation(fields: [questionId], references: [id])
+  question   question @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "questionlables_questionid_fkey")
 }
 
 model questionOptions {
-  id          Int      @id @default(autoincrement())
+  id          Int      @id(map: "questionoptions_pkey") @default(autoincrement())
   questionId  Int
   optionOrder Int
   code        String?
@@ -59,12 +66,12 @@ model questionOptions {
   text        String?
   image       String?
   factId      Int?
-  fact        fact?    @relation(fields: [factId], references: [id])
-  question    question @relation(fields: [questionId], references: [id])
+  fact        fact?    @relation(fields: [factId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question    question @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "questionoptions_questionid_fkey")
 }
 
 model questionType {
-  type     String     @id
+  type     String     @id(map: "questiontype_pkey")
   seq      Int
   question question[]
 }
@@ -77,31 +84,31 @@ model rule {
   factId      Int?
   factAction  String?
   questionId  Int?
-  fact        fact?       @relation(fields: [factId], references: [id])
-  question    question?   @relation(fields: [questionId], references: [id])
-  ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type])
+  fact        fact?       @relation(fields: [factId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rule_factid_fkey")
+  question    question?   @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rule_questionid_fkey")
+  ruleTrigger ruleTrigger @relation(fields: [triggerType], references: [type], onDelete: NoAction, onUpdate: NoAction, map: "rule_triggertype_fkey")
   ruleTests   ruleTests[]
 }
 
 model ruleOperation {
-  type      String      @id
+  type      String      @id(map: "ruleoperation_pkey")
   seq       Int
   ruleTests ruleTests[]
 }
 
 model ruleTests {
-  id            Int           @id @default(autoincrement())
+  id            Int           @id(map: "ruletests_pkey") @default(autoincrement())
   ruleId        Int
   factId        Int
   operation     String
   parameter     String?
-  fact          fact          @relation(fields: [factId], references: [id])
-  ruleOperation ruleOperation @relation(fields: [operation], references: [type])
-  rule          rule          @relation(fields: [ruleId], references: [id])
+  fact          fact          @relation(fields: [factId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ruletests_factid_fkey")
+  ruleOperation ruleOperation @relation(fields: [operation], references: [type], onDelete: NoAction, onUpdate: NoAction, map: "ruletests_operation_fkey")
+  rule          rule          @relation(fields: [ruleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ruletests_ruleid_fkey")
 }
 
 model ruleTrigger {
-  type String @id
+  type String @id(map: "ruletrigger_pkey")
   seq  Int
   rule rule[]
 }
@@ -111,4 +118,12 @@ model theme {
   name     String     @db.VarChar
   fact     fact[]
   question question[]
+}
+
+model users {
+  id         Int        @id(map: "user_pkey") @default(autoincrement())
+  created_at DateTime?  @default(now()) @db.Timestamptz(6)
+  password   String?
+  username   String?
+  personas   personas[]
 }
