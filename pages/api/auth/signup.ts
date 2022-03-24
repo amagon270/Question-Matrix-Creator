@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   async function signup() {
-    const body = JSON.parse(req.body);
+    const body = req.body as auth.signupRequestBody;
     const existingUser = await prisma.users.findFirst({
       where: {
         username: body.username

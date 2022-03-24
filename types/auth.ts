@@ -4,4 +4,14 @@ declare namespace auth {
     username: string;
     exp: number;
   };
+
+  type loginRequestBody = {
+    username: string;
+    password: string;
+  }
+
+  type signupRequestBody = {
+    username: string;
+    password: string;
+  }
 };

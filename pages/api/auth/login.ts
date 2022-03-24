@@ -17,10 +17,12 @@ export default async function handler(req, res) {
   }
 
   async function login() {
-    req.body.username = req.body.username.toLowerCase();
+    let _body = req.body as auth.loginRequestBody;
+
+    _body.username = _body.username.toLowerCase();
     const _user = await prisma.users.findFirst({
       where: {
-        username: req.body.username
+        username: _body.username
       }
     });
 
@@ -30,7 +32,7 @@ export default async function handler(req, res) {
     }
 
     const passwordMatchesHash = await doesPasswordMatchHash(
-      req.body.password,
+      _body.password,
       _user.password,
     );
 
