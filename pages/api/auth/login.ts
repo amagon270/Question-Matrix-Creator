@@ -4,7 +4,7 @@ import { doesPasswordMatchHash, userToJWT } from '../../../lib/auth';
 import runMiddleware from '../../../lib/runMiddleware'
 
 export default async function handler(req, res) {
-  await runMiddleware(req, res, Cors({methods: ['GET', 'HEAD']}));
+  await runMiddleware(req, res, Cors({methods: ['POST', 'HEAD']}));
   const prisma = new PrismaClient();
   if (req.method === "POST") {
     try {

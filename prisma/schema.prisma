@@ -125,5 +125,6 @@ model users {
   created_at DateTime?  @default(now()) @db.Timestamptz(6)
   password   String?
   username   String?
+  seenIntro  Boolean?
   personas   personas[]
 }
