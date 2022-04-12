@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import Button from 'react-bootstrap/Button'
 
 export function Search(data, searchField, dataReturn, firstRun = false) {
@@ -10,7 +10,7 @@ export function Search(data, searchField, dataReturn, firstRun = false) {
   )
 
   function findData(event) {
-    var filteredData = data.filter(e => e[searchField]?.toLowerCase()?.includes(event.target.value.toLowerCase()));
+    const filteredData = data.filter(e => e[searchField]?.toLowerCase()?.includes(event.target.value.toLowerCase()));
     dataReturn(filteredData)
   }
 }
@@ -24,8 +24,8 @@ export function SearchButtonMatrix(data, searchField, dataReturn, clickEvent, fi
   )
 
   function buttonMatrix(filteredData, outputArray) {
-    var newLine = 0;
-    var totalItems = 0;
+    let newLine = 0;
+    const totalItems = 0;
     outputArray = [];
     filteredData.forEach(item => {
       if (totalItems < NUM_OF_SHOWN_ITEMS) {

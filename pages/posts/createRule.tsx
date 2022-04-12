@@ -2,29 +2,31 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
-import { RuleFields } from '../../lib/formFields.js'
+import { CreateRuleForm } from '../../lib/createRuleForm.jsx'
 import { useRouter } from 'next/router';
 
-export async function getStaticProps(context) {
-  const prisma = new PrismaClient();
+export async function getServerSideProps() {
+  if (!global.facts || !global.questions || !global.ruleOperations|| !global.ruleTriggers) {
+    const prisma = new PrismaClient();
+    global.facts = await prisma.fact.findMany();
+    global.questions = await prisma.question.findMany()
+    global.ruleOperations = await prisma.ruleOperation.findMany()
+    global.ruleTriggers = await prisma.ruleTrigger.findMany()
+    await prisma.$disconnect()
+  }
 
-  var questions = await prisma.question.findMany();
-  var facts = await prisma.fact.findMany();
-  var themes = await prisma.theme.findMany();
-  questions.unshift({id: null, code: null, type: 'TextOnly'});
-  facts.unshift({id: null, name: null, type: "bool"});
-
-  var ruleTriggers = await prisma.ruleTrigger.findMany();
-  var ruleOperations = await prisma.ruleOperation.findMany()
-  await prisma.$disconnect()
+  
+  const facts = global.facts;
+  const questions = global.questions;
+  const ruleOperations = global.ruleOperations;
+  const ruleTriggers = global.thruleTriggersemes;
 
   return {
     props: {
-      ruleTriggers,
-      ruleOperations,
-      questions,
       facts,
-      themes
+      questions,
+      ruleOperations,
+      ruleTriggers
     }
   }
 }
@@ -43,7 +45,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
 
   function Form() {
     return (
-      RuleFields({
+      CreateRuleForm({
         ruleTriggers: ruleTriggers,
         ruleOperations: ruleOperations,
         questions: questions,
@@ -63,7 +65,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
         trigger: event.target.triggers.value,
         priority: event.target.priority.value,
         questionAction: event.target.questions.value,
-        factAction: ruleData.chosenFact,
+        // factAction: ruleData.chosenFact,
         factActionValue: event.target.factValue.value,
         tests: ruleData.tests
       }),
@@ -73,7 +75,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
       method: 'POST'
     })
 
-    const result = await res.json();
+    await res.json();
 
     setRuleData({numberOfTests: 0, tests: []})
     refreshData();

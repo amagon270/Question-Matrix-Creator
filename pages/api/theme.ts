@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   
   if (req.method === "POST") {
     try {
-      let response = await writeThemeReq(req.body);
+      const response = await writeThemeReq(req.body);
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   
   if (req.method === "PUT") {
     try {
-      let response = await updateThemeReq(req.body);
+      const response = await updateThemeReq(req.body);
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     try {
-      let response = await deleteThemeReq(req.body);
+      const response = await deleteThemeReq(req.body);
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)

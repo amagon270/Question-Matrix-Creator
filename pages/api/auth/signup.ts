@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import Cors from 'cors'
-import { hashPassword, signJWT, userToJWT } from '../../../lib/auth';
+import { hashPassword, userToJWT } from '../../../lib/auth';
 import runMiddleware from '../../../lib/runMiddleware'
 
 export default async function handler(req, res) {

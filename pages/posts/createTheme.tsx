@@ -1,8 +1,8 @@
 import React from "react";
 import Layout from '../../components/layout'
-import { ThemeCreateLayout } from '../../lib/formFields.js'
 import { useRouter } from 'next/router';
 import { useState } from 'react'
+import CreateThemeForm from "../../lib/createThemeForm";
 
 export default function CreateTheme() {
   const [themeState, setThemeState] = useState({})
@@ -19,7 +19,7 @@ export default function CreateTheme() {
 
   function Form() {
     return (
-      ThemeCreateLayout({
+      CreateThemeForm({
         themeState: themeState,
         setThemeState: setThemeState,
         formSubmit: createTheme, 
@@ -40,7 +40,7 @@ export default function CreateTheme() {
       method: 'POST'
     })
 
-    const result = await res.json();
+    await res.json();
     refreshData();
   }
 }

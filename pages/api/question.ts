@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      let response = await writeQuestionReq(req.body)
+      const response = await writeQuestionReq(req.body)
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   if (req.method === "PUT") {
     try {
-      let response = await updateQuestionReq(req.body)
+      const response = await updateQuestionReq(req.body)
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     try {
-      let response = await deleteQuestionReq(req.body)
+      const response = await deleteQuestionReq(req.body)
       res.status(200).json({text: response})
     } catch (e) {
       console.log(e)
@@ -63,7 +63,7 @@ async function writeQuestionReq(data) {
         label: label
       }
     })
-  };
+  }
 
   for (const option of data.options) {
     await prisma.questionOptions.create({
@@ -77,7 +77,7 @@ async function writeQuestionReq(data) {
         factId: option._fact
       }
     })
-  };
+  }
 
   prisma.$disconnect();
   return ("Created Question " + data.code)
@@ -120,7 +120,7 @@ async function updateQuestionReq(data) {
         label: label
       }
     });
-  };
+  }
 
   for (const option of data.options) {
     await prisma.questionOptions.upsert({
@@ -144,7 +144,7 @@ async function updateQuestionReq(data) {
         factId: option.factId
       }
     })
-  };
+  }
 
   prisma.$disconnect();
   return ("Updated Question " + data.code)

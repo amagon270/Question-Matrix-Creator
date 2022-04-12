@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import { createClient } from '@supabase/supabase-js'
 
 import Cors from 'cors'
 
@@ -36,17 +35,15 @@ export default async function handler(req, res) {
   }
 
   async function createJson() {
-    var factExport = [];
-    var questionExport = [];
-    var ruleExport = [];
+    const factExport = [];
+    const questionExport = [];
+    const ruleExport = [];
     const questions = await prisma.question.findMany();
     const questionOptions = await prisma.questionOptions.findMany();
     const questionLabels = await prisma.questionLables.findMany();
     const facts = await prisma.fact.findMany();
     const rules = await prisma.rule.findMany();
     const ruleTests = await prisma.ruleTests.findMany();
-    const themes = await prisma.theme.findMany();
-
 
     //null safety in the app
     factExport.push({
@@ -68,8 +65,8 @@ export default async function handler(req, res) {
     questions.forEach(question => {
       const filteredOptions = questionOptions.filter(option => option.questionId == question.id);
       const filteredLabels = questionLabels.filter(label => label.questionId == question.id);
-      var options = [];
-      var labels = [];
+      const options = [];
+      const labels = [];
       filteredOptions.forEach(option => {
         options.push({
           code: option.code,
@@ -112,7 +109,7 @@ export default async function handler(req, res) {
     rules.forEach(rule => {
       const filteredtests = ruleTests.filter(test => test.ruleId == rule.id);
 
-      var tests = [];
+      const tests = [];
       filteredtests.forEach(test => {
         tests.push({
           factId: test.factId,
@@ -138,12 +135,6 @@ export default async function handler(req, res) {
       rules: ruleExport
     });
 
-    // const supabase = createClient(
-    //   "https://usqmtvptioodqnbokizz.supabase.co",
-    //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjI1NDUwMDUyLCJleHAiOjE5NDEwMjYwNTJ9.XHUkRUAdDQ5UxsjB9ZyWnNZcf3h0B8kPHAqYkvRjqi8"
-    // );
-    //let { error } = await supabase.storage.from("personas").update("export.json", exportData);
-    // console.log(error);
     res.status(200).json(exportData)
   }
 }

@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   async function login() {
-    let _body = req.body as auth.loginRequestBody;
+    const _body = req.body as auth.loginRequestBody;
 
     _body.username = _body.username.toLowerCase();
     const _user = await prisma.users.findFirst({
@@ -43,5 +43,5 @@ export default async function handler(req, res) {
 
     await prisma.$disconnect();
     res.status(200).json(userToJWT(_user));
-  };
+  }
 }

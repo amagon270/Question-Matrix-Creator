@@ -1,5 +1,5 @@
 import Cors from 'cors'
-import { checkAuth, decodeJWT, doesPasswordMatchHash, getAuthHeader, userToJWT } from '../../../lib/auth';
+import { checkAuth, userToJWT } from '../../../lib/auth';
 import runMiddleware from '../../../lib/runMiddleware'
 
 export default async function handler(req, res) {
@@ -20,5 +20,5 @@ export default async function handler(req, res) {
       return;
     }
     res.status(400).json({text: "Something went wrong.  Sign in again"});
-  };
+  }
 }

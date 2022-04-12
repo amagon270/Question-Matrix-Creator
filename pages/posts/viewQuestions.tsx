@@ -1,58 +1,72 @@
 import React, { useState } from "react";
-import { useRouter } from 'next/router';
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
-import { Search } from '../../lib/search.js'
-import { QuestionCreateLayout } from '../../lib/formFields.js'
+import { Search } from '../../lib/search'
 import { Card, ListGroup, Button } from "react-bootstrap";
+import CreateQuestionForm from "../../lib/createQuestionForm";
+import { Matrix } from "../../types/matrix";
 
-export async function getServerSideProps(context) {
-  const prisma = new PrismaClient();
-  var themes = await prisma.theme.findMany();
-  var questions = await prisma.question.findMany()
-  var questionLabels = await prisma.questionLables.findMany()
-  var questionOptions = await prisma.questionOptions.findMany()
-  var facts = await prisma.fact.findMany()
-  var questionTypes = await prisma.questionType.findMany()
-  await prisma.$disconnect()
+export async function getServerSideProps() {
+  if (!global.questions || !global.questionLabels || !global.questionOptions || global.questionTypes || global.facts || global.themes) {
+    const prisma = new PrismaClient();
+    global.questions = await prisma.question.findMany();
+    global.questionLabels = await prisma.questionLables.findMany()
+    global.questionOptions = await prisma.questionOptions.findMany()
+    global.questionTypes = await prisma.questionType.findMany()
+    global.facts = await prisma.fact.findMany()
+    global.themes = await prisma.theme.findMany()
+    await prisma.$disconnect()
+  }
+
+  const questions = global.questions;
+  const questionLabels = global.questionLabels;
+  const questionOptions = global.questionOptions;
+  const questionTypes = global.questionTypes;
+  const facts = global.facts;
+  const themes = global.themes;
 
   return {
     props: {
       questions,
       questionLabels,
       questionOptions,
-      facts,
       questionTypes,
+      facts,
       themes
     }
   }
 }
 
-export default function ViewQuestion({ questions, questionLabels, questionOptions, facts, questionTypes, themes }) {
+type Props = {
+  questions: Matrix.Question[],
+  questionLabels: Matrix.QuestionLabels[],
+  questionOptions: Matrix.QuestionOption[],
+  questionTypes: Matrix.QuestionType[],
+  facts: Matrix.Fact[],
+  themes: Matrix.Theme[]
+}
+
+
+export default function ViewQuestion({ questions, questionLabels, questionOptions, questionTypes, facts, themes }: Props) {
   const [shownQuestions, setShownQuestions] = useState(questions);
   const [editQuestionData, setEditQuestionData] = useState(null);
-  const sliderQuestionTypes = ["Slider", "TextSlider"];
-  const optionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
-  const numberOfOptions = 6;
-  var questionHtml = [];
-
-  const router = useRouter();
-  const refreshData = () => {router.reload()}
+  const _sliderQuestionTypes: Matrix.SliderQuestionTypes = ["Slider", "TextSlider"];
+  const _optionQuestionTypes: Matrix.OptionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
+  const sliderQuestionTypes: string[] = _sliderQuestionTypes;
+  const optionQuestionTypes: string[] = _optionQuestionTypes;
+  const questionHtml = [];
 
   if (editQuestionData != null) {
     questionHtml.push(
-      QuestionCreateLayout({
-        facts: facts,
-        questionTypes: questionTypes, 
-        questionData: editQuestionData,
-        setQuestionData: setEditQuestionData,
-        formSubmit: updateQuestion,
-        existingQuestion: editQuestionData.question,
-        optionQuestionTypes: optionQuestionTypes,
-        sliderQuestionTypes: sliderQuestionTypes,
-        numberOfOptions: numberOfOptions,
-        themes: themes
-      })
+      <CreateQuestionForm
+        allFacts={facts}
+        allQuestionTypes={questionTypes} 
+        question={editQuestionData}
+        setQuestion={setEditQuestionData}
+        submit={updateQuestion}
+        allThemes={themes}
+        submitButtonLabel={"Create Question"}
+      />
     )
   } else {
     questionHtml.push(...questionViewLayout());
@@ -68,11 +82,11 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     event.preventDefault() // don't redirect the page
     const res = await fetch('/api/question', {
       body:  JSON.stringify({
-        id: editQuestionData.question.id,
+        id: editQuestionData.id,
         code: event.target.code.value,
         type: event.target.QuestionType.value,
         text: event.target.text.value,
-        factSubject: editQuestionData.chosenFact,
+        factSubject: editQuestionData.factSubject,
         options: editQuestionData.options,
         min: event.target.min?.value,
         max: event.target.max?.value,
@@ -86,21 +100,18 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
       method: 'PUT'
     })
 
-    const result = await res.json();
+    await res.json();
 
     setEditQuestionData(null);
-    refreshData();
   }
 
   function pushEditQuestionButton(event) {
-    var newQuestion = questions.find(question => question.id == event.target.id.substring(4))
+    const newQuestion = questions.find(question => question.id == event.target.id.substring(4))
     setEditQuestionData({
-      question: newQuestion,
-      type: newQuestion.type, 
-      labels: questionLabels.filter(label => label.questionId == newQuestion.id).map(label => label.label),
+      ...newQuestion,
       options: questionOptions.filter(option => option.questionId == newQuestion.id).sort((a, b) => a.optionOrder-b.optionOrder),
-      submitLabel: "submit"
-    })
+      labels: questionLabels.filter(label => label.questionId == newQuestion.id).map(label => label.label),
+    });
   }
 
   async function pushDeleteQuestionButton(event) {
@@ -115,14 +126,13 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
       method: 'DELETE'
     })
 
-    const result = await res.json();
+    await res.json();
 
     setEditQuestionData(null);
-    refreshData();
   }
 
   function questionViewLayout() {
-    var layout = [];
+    const layout = [];
     layout.push(
       <div key="Search">
         <>Search: </>
@@ -130,14 +140,14 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
       </div>
     );
 
-    for (var i = 0; i < shownQuestions.length; i++) {
-      var optionOptions = [];
+    for (let i = 0; i < shownQuestions.length; i++) {
+      const optionOptions = [];
       if (optionQuestionTypes.includes(shownQuestions[i].type)) {
-        var currentQuestionOptions = 
+        const currentQuestionOptions = 
           questionOptions.filter(option => option.questionId == shownQuestions[i].id)
           .sort((a, b) => a.optionOrder - b.optionOrder);
 
-        for (var j = 0; j < currentQuestionOptions.length; j++) {
+        for (let j = 0; j < currentQuestionOptions.length; j++) {
           optionOptions.push(
             <div key={"QuestionOptions"+j}>
               {currentQuestionOptions[j].code}: {currentQuestionOptions[j].text}: {currentQuestionOptions[j].value}: {currentQuestionOptions[j].image}<br/>
@@ -146,12 +156,12 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
         }
       }
 
-      var sliderOptions = [];
+      const sliderOptions = [];
       if (sliderQuestionTypes.includes(shownQuestions[i].type)) {
-        var currentQuestionLabels = questionLabels.filter(label => label.questionId == shownQuestions[i].id);
+        const currentQuestionLabels = questionLabels.filter(label => label.questionId == shownQuestions[i].id);
         sliderOptions.push(<div key="min"><b>Min: </b>{shownQuestions[i].min}</div>);
         sliderOptions.push(<div key="max"><b>Max: </b>{shownQuestions[i].max}</div>);
-        for (var j = 0; j < currentQuestionLabels.length; j++) {
+        for (let j = 0; j < currentQuestionLabels.length; j++) {
           sliderOptions.push(
             <div key={"sliderOptions"+j}>
               {currentQuestionLabels[j].label} <br/>
@@ -165,7 +175,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
           <ListGroup>
             <ListGroup.Item>Type: {shownQuestions[i].type}</ListGroup.Item>
             <ListGroup.Item>Text: {shownQuestions[i].text}</ListGroup.Item>
-            <ListGroup.Item>Fact: {facts.find(fact => fact.id == shownQuestions[i].factSubject)?.name ?? ""}</ListGroup.Item>
+            <ListGroup.Item>Fact: {facts.find(fact => fact.id.toString() === shownQuestions[i].factSubject)?.name ?? ""}</ListGroup.Item>
             {/* {sliderOptions}
             {optionOptions} */}
           </ListGroup>

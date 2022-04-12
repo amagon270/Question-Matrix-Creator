@@ -9,7 +9,7 @@ import { Navbar, NavDropdown } from 'react-bootstrap'
 const name = "robert Bartlett"
 export const siteTitle = 'Question Matrix Creator'
 
-export default function Layout({ children, home }) {
+export const Layout = ({ children }) => {
   return (
     <div className={styles.container}>
       <Navbar bg="light" expand="lg">
@@ -31,3 +31,5 @@ export default function Layout({ children, home }) {
     </div>
   )
 }
+
+export default Layout;

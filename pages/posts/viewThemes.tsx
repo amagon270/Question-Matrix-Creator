@@ -3,17 +3,21 @@ import { useState } from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
-import { ThemeCreateLayout as ThemeCreateLayout } from '../../lib/formFields.js'
 import { useRouter } from "next/router";
-import { Card, ListGroup, Button } from "react-bootstrap";
+import { Card, Button } from "react-bootstrap";
+import CreateThemeForm from "../../lib/createThemeForm";
 
-export async function getServerSideProps(context) {
-  const prisma = new PrismaClient();
-  var themes = await prisma.theme.findMany();
-  await prisma.$disconnect();
+export async function getServerSideProps() {
+  if (!global.themes || !global.facts || !global.questionTypes) {
+    const prisma = new PrismaClient();
+    global.themes = await prisma.theme.findMany()
+    await prisma.$disconnect()
+  }
+  const themes = global.themes;
+
   return {
     props: {
-      themes,
+      themes
     }
   }
 }
@@ -25,10 +29,10 @@ export default function ViewThemes({ themes }) {
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
-  var themeHtml = [];
+  const themeHtml = [];
   if (editTheme != null) {
     themeHtml.push(
-      ThemeCreateLayout({
+      CreateThemeForm({
         themeState: editTheme,
         setThemeState: setEditTheme,
         formSubmit: updateTheme,
@@ -60,7 +64,7 @@ export default function ViewThemes({ themes }) {
       method: 'PUT'
     })
 
-    const result = await res.json();
+    await res.json();
     
     setEditTheme(null);
     refreshData()
@@ -82,14 +86,14 @@ export default function ViewThemes({ themes }) {
       method: 'DELETE'
     })
 
-    const result = await res.json();
+    await res.json();
     
     setEditTheme(null);
     refreshData()
   }
 
   function themeViewLayout() {
-    var layout = [];
+    const layout = [];
 
     //searchBar
     layout.push(
@@ -100,7 +104,7 @@ export default function ViewThemes({ themes }) {
     );
 
     //themes
-    for (var i = 0; i < shownThemes.length; i++) {
+    for (let i = 0; i < shownThemes.length; i++) {
       layout.push(
         <Card key={i}>
           <Card.Header>{shownThemes[i].name}</Card.Header>

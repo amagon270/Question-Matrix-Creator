@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import Cors from 'cors'
-import { checkAuth, decodeJWT, doesPasswordMatchHash, getAuthHeader, userToJWT } from '../../../lib/auth';
+import { checkAuth } from '../../../lib/auth';
 import runMiddleware from '../../../lib/runMiddleware'
 
 export default async function handler(req, res) {
@@ -27,5 +27,5 @@ export default async function handler(req, res) {
       res.status(200).json([..._personas]);
       return;
     }
-  };
+  }
 }

@@ -3,47 +3,55 @@ import {useState} from 'react'
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { Search } from '../../lib/search.js'
-import { RuleFields } from '../../lib/formFields.js'
+import { CreateRuleForm } from '../../lib/createRuleForm.jsx'
 import { useRouter } from 'next/router';
 import { Card, ListGroup, Button } from "react-bootstrap";
 
-export async function getServerSideProps(context) {
-  const prisma = new PrismaClient();
-  var rules = await prisma.rule.findMany();
-  var ruleTests = await prisma.ruleTests.findMany();
-  var questions = await prisma.question.findMany();
-  var facts = await prisma.fact.findMany();
-  var themes = await prisma.theme.findMany();
-  questions.unshift({id: 0, code: 'none', type: 'TextOnly'});
-  facts.unshift({id: 0, name: "none", type: "bool"});
-  var ruleTriggers = await prisma.ruleTrigger.findMany();
-  var ruleOperations = await prisma.ruleOperation.findMany()
-  await prisma.$disconnect()
+export async function getServerSideProps() {
+  if (!global.themes || !global.facts || !global.questionTypes) {
+    const prisma = new PrismaClient();
+    global.questions = await prisma.question.findMany();
+    global.rules = await prisma.rule.findMany()
+    global.ruleTests = await prisma.ruleTests.findMany()
+    global.ruleTriggers = await prisma.ruleTrigger.findMany()
+    global.ruleOperations = await prisma.ruleOperation.findMany()
+    global.facts = await prisma.fact.findMany()
+    global.themes = await prisma.theme.findMany()
+    await prisma.$disconnect()
+  }
+
+  const questions = global.questions;
+  const rules = global.rules;
+  const ruleTests = global.ruleTests;
+  const ruleTriggers = global.ruleTriggers;
+  const ruleOperations = global.ruleOperations;
+  const facts = global.facts;
+  const themes = global.themes;
 
   return {
     props: {
+      questions,
       rules,
       ruleTests,
       ruleTriggers,
       ruleOperations,
-      questions,
       facts,
       themes
     }
   }
 }
 
-export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperations, questions, facts, themes}) {
+export default function ViewRules({ questions, rules, ruleTests, ruleTriggers, ruleOperations, facts, themes }) {
   const [shownRules, setShownRules] = useState(rules);
   const [editRuleData, setEditRuleData] = useState(null);
 
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
-  var ruleHtml = [];
+  const ruleHtml = [];
   if (editRuleData != null) { 
     ruleHtml.push(
-      RuleFields({
+      CreateRuleForm({
         ruleTriggers: ruleTriggers,
         ruleOperations: ruleOperations,
         questions: questions,
@@ -83,7 +91,7 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
       method: 'PUT'
     })
 
-    const result = await res.json();
+    await res.json();
 
     const rule = rules.find(rule => rule.id == editRuleData.rule.id);
     rule.code = event.target.code.value;
@@ -97,8 +105,8 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
   }
 
   function pushEditRuleButton(event) {
-    var newRule = rules.find(rule => rule.id == event.target.id.substring(4))
-    var tests = ruleTests.filter(test => test.ruleId == newRule.id)
+    const newRule = rules.find(rule => rule.id == event.target.id.substring(4))
+    const tests = ruleTests.filter(test => test.ruleId == newRule.id)
       .map((e,i) => {
         e.order = i;
         return e;
@@ -124,14 +132,14 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
       method: 'DELETE'
     })
 
-    const result = await res.json();
+    await res.json();
 
     refreshData();
     setEditRuleData(null);
   }
 
   function ruleViewLayout() {
-    var layout = [];
+    const layout = [];
 
     layout.push(
       <div key="Search">
@@ -140,11 +148,11 @@ export default function ViewRules({ rules, ruleTests, ruleTriggers, ruleOperatio
       </div>
     );
     
-    for (var i = 0; i < shownRules.length; i++) {
-      var testOptions = [];
+    for (let i = 0; i < shownRules.length; i++) {
+      const testOptions = [];
 
-      var currentRuleTests = ruleTests.filter(test => test.ruleId == shownRules[i].id);
-      for (var j = 0; j < currentRuleTests.length; j++) {
+      const currentRuleTests = ruleTests.filter(test => test.ruleId == shownRules[i].id);
+      for (let j = 0; j < currentRuleTests.length; j++) {
         testOptions.push(
           <div key={"test"+i+j}>
             {facts.find(fact => fact.id == currentRuleTests[j].factId).name}: {currentRuleTests[j].operation}: {currentRuleTests[j].parameter}<br/>
