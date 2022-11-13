@@ -33,8 +33,8 @@ type Props = {
   themes: Matrix.Theme[]
 }
 
-export default function CreateFact({facts, factTypes, themes}: Props) {
-  const [fact, setFact] = useState<Matrix.Fact>({id: null, name: "", type: "", negatedFacts: [], theme: null, display: ""});
+export default function CreateFact(props: Props) {
+  const [fact, setFact] = useState<Matrix.Fact>(Matrix.blankFact);
 
   return (
     <Layout>
@@ -44,9 +44,9 @@ export default function CreateFact({facts, factTypes, themes}: Props) {
         fact={fact}
         setFact={setFact}
         submit={createFact} 
-        allFactTypes={factTypes}
-        allFacts={facts}
-        allThemes={themes}
+        allFactTypes={props.factTypes}
+        allFacts={props.facts}
+        allThemes={props.themes}
         submitButtonLabel={"create"}
       />
     </Layout>

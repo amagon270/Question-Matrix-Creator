@@ -2,7 +2,6 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
-import { useRouter } from 'next/router';
 import CreateQuestionForm from "../../lib/createQuestionForm";
 import { Matrix } from "../../types/matrix";
 
@@ -34,19 +33,8 @@ type Props = {
   themes: Matrix.Theme[]
 }
 
-export default function CreateQuestion({facts, questionTypes, themes}: Props) {
-  const [questionData, setQuestionData] = useState<Matrix.Question>({
-    id: 0,
-    code: "",
-    text: "",
-    factSubject: "",
-    type: "",
-    min: 0,
-    max: 0,
-    theme: 0,
-    options: [],
-    labels: [],
-  });
+export default function CreateQuestion(props: Props) {
+  const [questionData, setQuestionData] = useState<Matrix.Question>(Matrix.blankQuestion);
 
   return (
     <Layout>
@@ -59,12 +47,12 @@ export default function CreateQuestion({facts, questionTypes, themes}: Props) {
   function Form() {
     return (
       <CreateQuestionForm
-        allFacts={facts}
-        allQuestionTypes={questionTypes} 
+        allFacts={props.facts}
+        allQuestionTypes={props.questionTypes} 
         question={questionData}
         setQuestion={setQuestionData}
         submit={createQuestion}
-        allThemes={themes}
+        allThemes={props.themes}
         submitButtonLabel={"Create Question"}
       />
     )

@@ -19,11 +19,11 @@ export default function CreateTheme() {
 
   function Form() {
     return (
-      CreateThemeForm({
-        themeState: themeState,
-        setThemeState: setThemeState,
-        formSubmit: createTheme, 
-      })
+      <CreateThemeForm
+        themeState={themeState}
+        setThemeState={setThemeState}
+        formSubmit={createTheme}
+      />
     )
   }
 

@@ -3,56 +3,73 @@ import { objectArrayToMap } from './utility';
 import { Form, Button } from "react-bootstrap";
 import { Card } from "reactstrap";
 import Dropdown from "./dropdown";
+import { Matrix } from "../types/matrix";
 
-export function CreateRuleForm(props) {
-  const ruleTriggers = props.ruleTriggers;
-  const ruleOperations = props.ruleOperations;
-  const questions = props.questions;
-  const facts = props.facts;
-  const ruleData = props.ruleData;
-  const setRuleData = props.setRuleData;
-  const formSubmit = props.formSubmit;
-  ruleData.testFacts ??= {};
-  ruleData.testOperators ??= {};
+export type Props = {
+  allFacts: Matrix.Fact[],
+  allQuestions: Matrix.Question[],
+  allRulesTriggers: Matrix.RuleTrigger[],
+  allRuleOperations: Matrix.RuleOperation[],
+  rule: Matrix.Rule,
+  setRule: (rule: Matrix.Rule) => void,
+  tests: Matrix.RuleTest[],
+  setTests: (tests: Matrix.RuleTest[]) => void,
+  submit: (event) => void,
+  submitButtonLabel?: string,
+}
+
+export function CreateRuleForm(props: Props) {
 
   const testFields = [];
-  for (let i = 0; i < ruleData.numberOfTests; i++) {
-    testFields.push(Test(i, ruleData.tests[i]));
+  for (let i = 0; i < props.tests.length; i++) {
+    testFields.push(Test(i, props.tests[i]));
   }
 
-  ruleData.firstRun = false;
-
   return (
-    <Form onSubmit={formSubmit} key="RuleFields">
-        <Form.Group controlId="code">
-          <Form.Label>code</Form.Label>
-          <Form.Control type="text" defaultValue={ruleData.rule?.code} required/>
-        </Form.Group>
+    <Form onSubmit={props.submit} key="RuleFields">
+      <Form.Group controlId="code">
+        <Form.Label>code</Form.Label>
+        <Form.Control type="text" defaultValue={props.rule?.code} required/>
+      </Form.Group>
 
-        Trigger Type
-        {Dropdown("triggers", objectArrayToMap(ruleTriggers, 'type', 'type'), ()=>{}, ruleData, setRuleData, "Trigger Type", ruleData.rule?.triggerType)}
+      Trigger Type
+      <Dropdown
+        id={"triggers"}
+        labels={objectArrayToMap(props.allRulesTriggers, 'type', 'type')}
+        value={props.rule?.triggerType}
+      />
 
-        <Form.Group controlId="priority">
-          <Form.Label>Priority</Form.Label>
-          <Form.Control type="text" defaultValue={ruleData.rule?.priority} required/>
-        </Form.Group>
+      <Form.Group controlId="priority">
+        <Form.Label>Priority</Form.Label>
+        <Form.Control type="text" defaultValue={props.rule?.priority} required/>
+      </Form.Group>
 
-        {testFields}
-        <Button type="button" onClick={AddTest}>Add Test</Button>
-        <Button type="button" onClick={RemoveTest}>Remove Test</Button>
-        {Action()}
+      {testFields}
+      <Button type="button" onClick={AddTest}>Add Test</Button>
+      <Button type="button" onClick={RemoveTest}>Remove Test</Button>
+      {Action()}
 
-        <Button type="submit">{ruleData.submitLabel ?? "Create"}</Button>
-      </Form>
+      <Button type="submit">{props.submitButtonLabel ?? "Create"}</Button>
+    </Form>
   )
 
-  function Test(order, data = null) {
+  function Test(order, data: Matrix.RuleTest = null) {
     return (
       <Card key={"test"+order}>
         Fact
-        {Dropdown(order+'-fact', objectArrayToMap(facts, 'id', 'display', 'name'), handleTestFactOperationChange, ruleData, setRuleData, order+"TestFact", data?.factId)}
+        <Dropdown
+          id={order+'-fact'}
+          labels={objectArrayToMap(props.allFacts, 'type', 'type')}
+          onSelect={handleTestFactOperationChange}
+          value={data.factId.toString()}
+        />
         Operator
-        {Dropdown(order+'-operator', objectArrayToMap(ruleOperations, 'type', 'type'), handleTestFactOperationChange, ruleData, setRuleData, order+"TestOperator", data?.operation)}
+        <Dropdown
+          id={order+'-operator'}
+          labels={objectArrayToMap(props.allRuleOperations, 'type', 'type')}
+          onSelect={handleTestFactOperationChange}
+          value={data.operation}
+        />
         <Form.Group controlId={order+'-parameter'}>
           <Form.Label>Parameter</Form.Label>
           <Form.Control 
@@ -70,36 +87,41 @@ export function CreateRuleForm(props) {
       <>
         <h4>Action</h4>
         <label>Question</label>
-        {Dropdown("questions", objectArrayToMap(questions, 'id', 'code'), ()=>{}, ruleData, setRuleData, "actionQuestion", ruleData.rule?.questionId)}<br/>
+        <Dropdown
+          id={"questions"}
+          labels={objectArrayToMap(props.allQuestions, 'id', 'code')}
+          value={props.rule?.questionId.toString()}
+        />
         <label>Fact</label>
-        {Dropdown("facts", objectArrayToMap(facts, 'id', 'display', 'name'), ()=>{}, ruleData, setRuleData, "actionFact", ruleData.rule?.factId)}<br/>
+        <Dropdown
+          id={"facts"}
+          labels={objectArrayToMap(props.allFacts, 'id', 'display', 'name')}
+          value={props.rule?.factId.toString()}
+        />
         <Form.Group controlId='factValue'>
           <Form.Label>Fact Value</Form.Label>
-          <Form.Control type="text" defaultValue={ruleData.rule?.factAction}/>
+          <Form.Control type="text" defaultValue={props.rule?.factAction}/>
         </Form.Group>
       </>
     )
   }
 
   function AddTest() {
-    ruleData.numberOfTests++;
-    setRuleData({...ruleData});
+    props.setTests([...props.tests, Matrix.blankRuleTest]);
   }
 
   function RemoveTest() {
-    ruleData.tests.pop();
-    ruleData.numberOfTests--;
-    setRuleData({...ruleData});
+    props.setTests([...props.tests.slice(0, props.tests.length - 1)]);
   }
 
-  function handleTestFactOperationChange(unused) {
-    const keys = Object.keys(ruleData).filter((key) => {
+  function handleTestFactOperationChange(event) {
+    const keys = Object.keys(props.rule).filter((key) => {
       return key.includes("TestFact") || key.includes("TestOperator");
     });
 
     keys.forEach(key => {
-      console.log(`${key} : ${ruleData[key]}`)
-      handleTestChange({target: {id: key, value: ruleData[key].selectedValue}});
+      console.log(`${key} : ${props.rule[key]}`)
+      handleTestChange({target: {id: key, value: props.rule[key].selectedValue}});
     })
   }
 
@@ -107,15 +129,7 @@ export function CreateRuleForm(props) {
     const testNumber = event.target.id.substring(0,1);
     console.log(event)
 
-    let test = ruleData.tests.find(item => {
-      return item.order.toString() == event.target.id.substring(0,1);
-    });
-
-    if (test == undefined) {
-      test = {order: testNumber, factId: "", operation: "GreaterThan", parameter: ""};
-      ruleData.tests.push(test);
-      setRuleData({...ruleData})
-    }
+    const test = props.tests[testNumber];
 
     if (event.target.id.includes("TestFact")) {
       test.factId = event.target.value;

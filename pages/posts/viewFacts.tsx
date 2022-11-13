@@ -36,9 +36,9 @@ type Props = {
   themes: Matrix.Theme[]
 }
 
-export default function ViewFacts({ themes, facts, factTypes }: Props) {
-  const [allFacts, setAllFacts] = useState<Matrix.Fact[]>(facts);
-  const [shownFacts, setShownFacts] = useState<Matrix.Fact[]>(facts);
+export default function ViewFacts(props: Props) {
+  const [allFacts, setAllFacts] = useState<Matrix.Fact[]>(props.facts);
+  const [shownFacts, setShownFacts] = useState<Matrix.Fact[]>(props.facts);
   const [editFact, setEditFact] = useState<Matrix.Fact | null>(null);
 
   return (
@@ -49,9 +49,9 @@ export default function ViewFacts({ themes, facts, factTypes }: Props) {
           fact={editFact}
           setFact={setEditFact}
           submit={updateFact}
-          allFactTypes={factTypes}
+          allFactTypes={props.factTypes}
           allFacts={allFacts}
-          allThemes={themes}
+          allThemes={props.themes}
           submitButtonLabel={"update"}
         />
         : <div>

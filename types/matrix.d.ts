@@ -30,6 +30,46 @@ declare namespace Matrix {
     fact: Fact,
   };
 
+  const blankFact: Fact = {
+    id: null, 
+    name: "", 
+    type: "", 
+    negatedFacts: [], 
+    theme: null, 
+    display: ""
+  };
+
+  const blankRule: Rule = {
+    id: 0,
+    code: "",
+    triggerType: "",
+    priority: 0,
+    factId: 0,
+    factAction: "",
+    questionId: 0,
+  }
+
+  const blankQuestion: Question = {
+    id: 0,
+    code: "",
+    text: "",
+    factSubject: "",
+    type: "",
+    min: 0,
+    max: 0,
+    theme: 0,
+    options: [],
+    labels: [],
+  }
+
+  const blankRuleTest: RuleTest = {
+    id: 0,
+    ruleId: 0,
+    factId: 0,
+    operation: "",
+    parameter: "",
+  }
+
   type SliderQuestionTypes = ["Slider", "TextSlider"];
   type OptionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
 }

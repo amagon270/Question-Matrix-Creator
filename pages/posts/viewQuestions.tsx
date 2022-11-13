@@ -47,8 +47,8 @@ type Props = {
 }
 
 
-export default function ViewQuestion({ questions, questionLabels, questionOptions, questionTypes, facts, themes }: Props) {
-  const [shownQuestions, setShownQuestions] = useState(questions);
+export default function ViewQuestion(props: Props) {
+  const [shownQuestions, setShownQuestions] = useState(props.questions);
   const [editQuestionData, setEditQuestionData] = useState(null);
   const _sliderQuestionTypes: Matrix.SliderQuestionTypes = ["Slider", "TextSlider"];
   const _optionQuestionTypes: Matrix.OptionQuestionTypes = ["MultipleChoice", "Polygon", "MultiPolygon", "MultipleSelect"];
@@ -59,12 +59,12 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
   if (editQuestionData != null) {
     questionHtml.push(
       <CreateQuestionForm
-        allFacts={facts}
-        allQuestionTypes={questionTypes} 
+        allFacts={props.facts}
+        allQuestionTypes={props.questionTypes} 
         question={editQuestionData}
         setQuestion={setEditQuestionData}
         submit={updateQuestion}
-        allThemes={themes}
+        allThemes={props.themes}
         submitButtonLabel={"Create Question"}
       />
     )
@@ -106,11 +106,11 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
   }
 
   function pushEditQuestionButton(event) {
-    const newQuestion = questions.find(question => question.id == event.target.id.substring(4))
+    const newQuestion = props.questions.find(question => question.id == event.target.id.substring(4))
     setEditQuestionData({
       ...newQuestion,
-      options: questionOptions.filter(option => option.questionId == newQuestion.id).sort((a, b) => a.optionOrder-b.optionOrder),
-      labels: questionLabels.filter(label => label.questionId == newQuestion.id).map(label => label.label),
+      options: props.questionOptions.filter(option => option.questionId == newQuestion.id).sort((a, b) => a.optionOrder-b.optionOrder),
+      labels: props.questionLabels.filter(label => label.questionId == newQuestion.id).map(label => label.label),
     });
   }
 
@@ -136,7 +136,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
     layout.push(
       <div key="Search">
         <>Search: </>
-        {Search(questions, "code", setShownQuestions)}
+        {Search(props.questions, "code", setShownQuestions)}
       </div>
     );
 
@@ -144,7 +144,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
       const optionOptions = [];
       if (optionQuestionTypes.includes(shownQuestions[i].type)) {
         const currentQuestionOptions = 
-          questionOptions.filter(option => option.questionId == shownQuestions[i].id)
+        props.questionOptions.filter(option => option.questionId == shownQuestions[i].id)
           .sort((a, b) => a.optionOrder - b.optionOrder);
 
         for (let j = 0; j < currentQuestionOptions.length; j++) {
@@ -158,7 +158,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
 
       const sliderOptions = [];
       if (sliderQuestionTypes.includes(shownQuestions[i].type)) {
-        const currentQuestionLabels = questionLabels.filter(label => label.questionId == shownQuestions[i].id);
+        const currentQuestionLabels = props.questionLabels.filter(label => label.questionId == shownQuestions[i].id);
         sliderOptions.push(<div key="min"><b>Min: </b>{shownQuestions[i].min}</div>);
         sliderOptions.push(<div key="max"><b>Max: </b>{shownQuestions[i].max}</div>);
         for (let j = 0; j < currentQuestionLabels.length; j++) {
@@ -175,7 +175,7 @@ export default function ViewQuestion({ questions, questionLabels, questionOption
           <ListGroup>
             <ListGroup.Item>Type: {shownQuestions[i].type}</ListGroup.Item>
             <ListGroup.Item>Text: {shownQuestions[i].text}</ListGroup.Item>
-            <ListGroup.Item>Fact: {facts.find(fact => fact.id.toString() === shownQuestions[i].factSubject)?.name ?? ""}</ListGroup.Item>
+            <ListGroup.Item>Fact: {props.facts.find(fact => fact.id.toString() === shownQuestions[i].factSubject)?.name ?? ""}</ListGroup.Item>
             {/* {sliderOptions}
             {optionOptions} */}
           </ListGroup>

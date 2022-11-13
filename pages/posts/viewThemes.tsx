@@ -8,7 +8,7 @@ import { Card, Button } from "react-bootstrap";
 import CreateThemeForm from "../../lib/createThemeForm";
 
 export async function getServerSideProps() {
-  if (!global.themes || !global.facts || !global.questionTypes) {
+  if (!global.themes) {
     const prisma = new PrismaClient();
     global.themes = await prisma.theme.findMany()
     await prisma.$disconnect()

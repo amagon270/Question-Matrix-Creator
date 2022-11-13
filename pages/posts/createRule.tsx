@@ -2,37 +2,49 @@ import React from "react";
 import Layout from '../../components/layout'
 import { PrismaClient } from '@prisma/client'
 import { useState } from 'react'
-import { CreateRuleForm } from '../../lib/createRuleForm.jsx'
+import { CreateRuleForm } from '../../lib/createRuleForm'
 import { useRouter } from 'next/router';
+import { Matrix } from "../../types/matrix";
 
 export async function getServerSideProps() {
-  if (!global.facts || !global.questions || !global.ruleOperations|| !global.ruleTriggers) {
+  if (!global.facts || !global.questions || !global.ruleOperations|| !global.ruleTriggers || !global.ruleTests) {
     const prisma = new PrismaClient();
     global.facts = await prisma.fact.findMany();
     global.questions = await prisma.question.findMany()
     global.ruleOperations = await prisma.ruleOperation.findMany()
     global.ruleTriggers = await prisma.ruleTrigger.findMany()
+    global.ruleTests = await prisma.ruleTests.findMany()
     await prisma.$disconnect()
   }
-
   
   const facts = global.facts;
   const questions = global.questions;
   const ruleOperations = global.ruleOperations;
   const ruleTriggers = global.thruleTriggersemes;
+  const ruleTests = global.ruleTests;
 
   return {
     props: {
       facts,
       questions,
       ruleOperations,
-      ruleTriggers
+      ruleTriggers,
+      ruleTests
     }
   }
 }
 
-export default function CreateRule({ ruleTriggers, ruleOperations, questions, facts }) {
-  const [ruleData, setRuleData] = useState({numberOfTests: 0, tests: []})
+type Props = {
+  facts: Matrix.Fact[],
+  questions: Matrix.Question[],
+  ruleOperations: Matrix.RuleOperation[],
+  ruleTriggers: Matrix.RuleTrigger[],
+  ruleTests: Matrix.RuleTest[],
+}
+
+export default function CreateRule(props: Props) {
+  const [ruleData, setRuleData] = useState<Matrix.Rule>(Matrix.blankRule)
+  const [tests, setTests] = useState<Matrix.RuleTest[]>([])
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
@@ -45,15 +57,18 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
 
   function Form() {
     return (
-      CreateRuleForm({
-        ruleTriggers: ruleTriggers,
-        ruleOperations: ruleOperations,
-        questions: questions,
-        facts: facts,
-        ruleData: ruleData,
-        setRuleData: setRuleData, 
-        formSubmit: createRule,
-      })
+      <CreateRuleForm
+        allFacts={props.facts}
+        allQuestions={props.questions}
+        allRulesTriggers={props.ruleTriggers}
+        allRuleOperations={props.ruleOperations}
+        rule={ruleData}
+        setRule={setRuleData} 
+        tests={tests}
+        setTests={setTests}
+        submit={createRule}
+        submitButtonLabel="Create Rule"
+      />
     )
   }
 
@@ -65,9 +80,9 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
         trigger: event.target.triggers.value,
         priority: event.target.priority.value,
         questionAction: event.target.questions.value,
-        // factAction: ruleData.chosenFact,
+        factAction: ruleData.factAction,
         factActionValue: event.target.factValue.value,
-        tests: ruleData.tests
+        tests: tests
       }),
       headers: {
         'Content-Type': 'application/json'
@@ -77,7 +92,7 @@ export default function CreateRule({ ruleTriggers, ruleOperations, questions, fa
 
     await res.json();
 
-    setRuleData({numberOfTests: 0, tests: []})
+    setRuleData(Matrix.blankRule)
     refreshData();
   }
 }

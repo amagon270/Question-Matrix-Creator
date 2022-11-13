@@ -6,9 +6,10 @@ import { Search } from '../../lib/search.js'
 import { CreateRuleForm } from '../../lib/createRuleForm.jsx'
 import { useRouter } from 'next/router';
 import { Card, ListGroup, Button } from "react-bootstrap";
+import { Matrix } from "../../types/matrix";
 
 export async function getServerSideProps() {
-  if (!global.themes || !global.facts || !global.questionTypes) {
+  if (!global.questions || !global.rules || !global.ruleTests || !global.ruleTriggers || !global.ruleOperations || !global.facts || !global.themes) {
     const prisma = new PrismaClient();
     global.questions = await prisma.question.findMany();
     global.rules = await prisma.rule.findMany()
@@ -41,26 +42,39 @@ export async function getServerSideProps() {
   }
 }
 
-export default function ViewRules({ questions, rules, ruleTests, ruleTriggers, ruleOperations, facts, themes }) {
-  const [shownRules, setShownRules] = useState(rules);
-  const [editRuleData, setEditRuleData] = useState(null);
+type Props = {
+  questions: Matrix.Question[],
+  rules: Matrix.Rule[],
+  ruleTests: Matrix.RuleTest[],
+  ruleTriggers: Matrix.RuleTrigger[],
+  ruleOperations: Matrix.RuleOperation[],
+  facts: Matrix.Fact[],
+  themes: Matrix.Theme[],
+}
+
+export default function ViewRules(props: Props) {
+  const [shownRules, setShownRules] = useState<Matrix.Rule[]>(props.rules);
+  const [ruleData, setRuleData] = useState<Matrix.Rule>(null)
+  const [tests, setTests] = useState<Matrix.RuleTest[]>([])
 
   const router = useRouter();
   const refreshData = () => {router.reload()}
 
   const ruleHtml = [];
-  if (editRuleData != null) { 
+  if (ruleData != null) { 
     ruleHtml.push(
-      CreateRuleForm({
-        ruleTriggers: ruleTriggers,
-        ruleOperations: ruleOperations,
-        questions: questions,
-        facts: facts,
-        themes: themes,
-        ruleData: editRuleData,
-        setRuleData: setEditRuleData, 
-        formSubmit: updateRule
-      })
+      <CreateRuleForm
+        allFacts={props.facts}
+        allQuestions={props.questions}
+        allRulesTriggers={props.ruleTriggers}
+        allRuleOperations={props.ruleOperations}
+        rule={ruleData}
+        setRule={setRuleData} 
+        tests={tests}
+        setTests={setTests}
+        submit={updateRule}
+        submitButtonLabel="Create Rule"
+      />
     )
   } else {
     ruleHtml.push(...ruleViewLayout());
@@ -76,14 +90,14 @@ export default function ViewRules({ questions, rules, ruleTests, ruleTriggers, r
     event.preventDefault() // don't redirect the page
     const res = await fetch('/api/rule', {
       body:  JSON.stringify({
-        id: editRuleData.rule.id,
+        id: ruleData.id,
         code: event.target.code.value,
         trigger: event.target.triggers.value,
         priority: event.target.priority.value,
         questionAction: event.target.questions.value,
         factAction: event.target.facts.value,
         factActionValue: event.target.factValue.value,
-        tests: editRuleData.tests
+        tests: tests
       }),
       headers: {
         'Content-Type': 'application/json'
@@ -93,31 +107,15 @@ export default function ViewRules({ questions, rules, ruleTests, ruleTriggers, r
 
     await res.json();
 
-    const rule = rules.find(rule => rule.id == editRuleData.rule.id);
-    rule.code = event.target.code.value;
-    rule.trigger = event.target.triggers.value;
-    rule.priority = event.target.priority.value;
-    rule.questionAction = event.target.questions.value;
-    rule.factAction = event.target.facts.value;
-    rule.factActionValue = event.target.factValue.value;
-    rule.tests = editRuleData.tests;
-    setEditRuleData(null);
+    setRuleData(null);
   }
 
   function pushEditRuleButton(event) {
-    const newRule = rules.find(rule => rule.id == event.target.id.substring(4))
-    const tests = ruleTests.filter(test => test.ruleId == newRule.id)
-      .map((e,i) => {
-        e.order = i;
-        return e;
-      })
+    const newRule = props.rules.find(rule => rule.id == event.target.id.substring(4));
+    const tests = props.ruleTests.filter(test => test.ruleId == newRule.id);
 
-    setEditRuleData({
-      rule: newRule,
-      numberOfTests: tests.length,
-      tests: tests,
-      submitLabel: "submit"
-    })
+    setRuleData(newRule);
+    setTests(tests);
   }
 
   async function pushDeleteRuleButton(event) {
@@ -135,7 +133,7 @@ export default function ViewRules({ questions, rules, ruleTests, ruleTriggers, r
     await res.json();
 
     refreshData();
-    setEditRuleData(null);
+    setRuleData(null);
   }
 
   function ruleViewLayout() {
@@ -144,24 +142,24 @@ export default function ViewRules({ questions, rules, ruleTests, ruleTriggers, r
     layout.push(
       <div key="Search">
         <>Search: </>
-        {Search(rules, "code", setShownRules)}
+        {Search(props.rules, "code", setShownRules)}
       </div>
     );
     
     for (let i = 0; i < shownRules.length; i++) {
       const testOptions = [];
 
-      const currentRuleTests = ruleTests.filter(test => test.ruleId == shownRules[i].id);
+      const currentRuleTests = props.ruleTests.filter(test => test.ruleId == shownRules[i].id);
       for (let j = 0; j < currentRuleTests.length; j++) {
         testOptions.push(
           <div key={"test"+i+j}>
-            {facts.find(fact => fact.id == currentRuleTests[j].factId).name}: {currentRuleTests[j].operation}: {currentRuleTests[j].parameter}<br/>
+            {props.facts.find(fact => fact.id == currentRuleTests[j].factId).name}: {currentRuleTests[j].operation}: {currentRuleTests[j].parameter}<br/>
           </div>
         )
       }
 
-      const actionQuestion = questions.find(q => q.id == shownRules[i].questionId).code;
-      const actionFact = facts.find(f => f.id == shownRules[i].factId)?.name;
+      const actionQuestion = props.questions.find(q => q.id == shownRules[i].questionId).code;
+      const actionFact = props.facts.find(f => f.id == shownRules[i].factId)?.name;
 
       layout.push(
         <Card key={"rule"+i}>
